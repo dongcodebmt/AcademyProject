@@ -9,7 +9,7 @@ namespace AcademyProject.DTOs
         public int LecturerId { get; set; }
         public int CategoryId { get; set; }
         public DateTime CreateAt { get; set; }
-        [Required(ErrorMessage = "The Title is required")]
+        [Required(ErrorMessage = "The title is required")]
         public string Title { get; set; }
     }
 }

@@ -9,7 +9,7 @@ namespace AcademyProject.DTOs
     public class RoleDTO
     {
         public int Id { get; set; }
-        [Required(ErrorMessage = "The Name is required")]
+        [Required(ErrorMessage = "The name is required")]
         public string Name { get; set; }
     }
 }

@@ -36,6 +36,16 @@ namespace AcademyProject
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // CORS Configure
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                    builder => builder.WithOrigins(Configuration["CORSConfig:AllowedHosts"])
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials());
+            });
+
             var connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContextPool<AcademyProjectContext>(options =>
             {
@@ -98,6 +108,8 @@ namespace AcademyProject
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors("CorsPolicy");
 
             app.UseAuthentication();
 

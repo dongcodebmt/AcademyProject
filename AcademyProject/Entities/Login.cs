@@ -8,9 +8,9 @@ namespace AcademyProject.Entities
 {
     public class Login
     {
-        [Required(ErrorMessage = "The Email is required")]
+        [Required(ErrorMessage = "The email is required")]
         public string Email { get; set; }
-        [Required(ErrorMessage = "The Password is required")]
+        [Required(ErrorMessage = "The password is required")]
         public string Password { get; set; }
         public Login()
         {
