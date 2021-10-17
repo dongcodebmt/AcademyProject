@@ -8,17 +8,20 @@ namespace AcademyProject.Entities
 {
     public class JWT
     {
-        [Required(ErrorMessage = "The token is required")]
-        public string Token { get; set; }
-        public DateTime Expires { get; set; }
+        public string AccessToken { get; set; }
+        public DateTime AccessTokenExpires { get; set; }
+        public string? RefreshToken { get; set; }
+        public DateTime? RefreshTokenExpires { get; set; }
         public JWT()
         {
 
         }
-        public JWT(string Token, DateTime Expires)
+        public JWT(string AccessToken, DateTime AccessTokenExpires, string? RefreshToken, DateTime? RefreshTokenExpires)
         {
-            this.Token = Token;
-            this.Expires = Expires;
+            this.AccessToken = AccessToken;
+            this.AccessTokenExpires = AccessTokenExpires;
+            this.RefreshToken = RefreshToken;
+            this.RefreshTokenExpires = RefreshTokenExpires;
         }
     }
 }

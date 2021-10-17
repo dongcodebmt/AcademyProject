@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Extensions.Configuration;
 
 #nullable disable
 
@@ -231,6 +230,9 @@ namespace AcademyProject.Models
 
             modelBuilder.Entity<User>(entity =>
             {
+                entity.HasIndex(e => e.Email, "UniqueEmail")
+                    .IsUnique();
+
                 entity.Property(e => e.Email)
                     .IsRequired()
                     .HasMaxLength(255);
@@ -243,9 +245,7 @@ namespace AcademyProject.Models
                     .IsRequired()
                     .HasMaxLength(255);
 
-                entity.Property(e => e.PasswordHash)
-                    .IsRequired()
-                    .HasMaxLength(255);
+                entity.Property(e => e.PasswordHash).HasMaxLength(255);
             });
 
             modelBuilder.Entity<UserRole>(entity =>

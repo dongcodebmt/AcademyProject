@@ -1,17 +1,21 @@
 ﻿using AcademyProject.DTOs;
 using AcademyProject.Entities;
+using AcademyProject.Models;
 using AcademyProject.Services;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AcademyProject.Controllers
@@ -36,41 +40,28 @@ namespace AcademyProject.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<JWT>> Refresh(JWT jwt)
+        public async Task<ActionResult<UserDTO>> Register([FromBody] UserDTO userDTO)
         {
-            int id = ValidateRefreshToken(jwt.Token);
-            if (id != 0)
+            var user = await GetUser(userDTO.Email);
+            if (user != null)
             {
-                var accessToken = await GetAccessToken(id);
-
-                JWT tokenResult = new JWT(
-                    new JwtSecurityTokenHandler().WriteToken(accessToken),
-                    accessToken.ValidTo
-                );
-
-                return Ok(tokenResult);
+                return BadRequest(new { message = "Tài khoản đã tồn tại!" });
             }
-            return Unauthorized();
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<JWT>> RefreshToken([FromBody] Login login)
-        {
-            // Verify account
-            var user = await GetUser(login.Email);
-            if (user == null)
+            if (userDTO.Password.Length < 8)
             {
-                return BadRequest();
-            }
-            bool verified = VerifyPassword(login.Password, user.PasswordHash);
-            if (verified == false)
-            {
-                return BadRequest();
+                return BadRequest(new { message = "Mật khẩu cần lớn hơn 8 ký tự!" });
             }
 
-            var refreshToken = await GetRefreshToken(user.Id);
+            userDTO.PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDTO.Password);
+            var newUser = mapper.Map<User>(userDTO);
+            newUser = await userService.Insert(newUser);
+
+            var accessToken = await GetAccessToken(newUser.Id);
+            var refreshToken = await GetRefreshToken(newUser.Id);
 
             JWT tokenResult = new JWT(
+                new JwtSecurityTokenHandler().WriteToken(accessToken),
+                accessToken.ValidTo,
                 new JwtSecurityTokenHandler().WriteToken(refreshToken),
                 refreshToken.ValidTo
             );
@@ -79,25 +70,91 @@ namespace AcademyProject.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<JWT>> AccessToken([FromBody] Login login)
+        public async Task<ActionResult<JWT>> Google(string token)
+        {
+            //Get google user info from access token Oauth2
+            string url = "https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + token;
+            string result = await GetAsync(url);
+            GoogleUser googleUser = JsonConvert.DeserializeObject<GoogleUser>(result);
+            if (googleUser.email == null)
+            {
+                return BadRequest();
+            }
+            var user = await GetUser(googleUser.email);
+            if (user == null)
+            {
+                //Create new User
+                User newUser = new User();
+                newUser.FirstName = googleUser.given_name;
+                newUser.LastName = googleUser.family_name;
+                newUser.Email = googleUser.email;
+                newUser.PasswordHash = null;
+
+                user = await userService.Insert(newUser);
+            }
+
+            var accessToken = await GetAccessToken(user.Id);
+            var refreshToken = await GetRefreshToken(user.Id);
+
+            JWT tokenResult = new JWT(
+                new JwtSecurityTokenHandler().WriteToken(accessToken),
+                accessToken.ValidTo,
+                new JwtSecurityTokenHandler().WriteToken(refreshToken),
+                refreshToken.ValidTo
+            );
+
+            return Ok(tokenResult);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<JWT>> Refresh(JWT jwt)
+        {
+            int id = ValidateRefreshToken(jwt.RefreshToken);
+            //string userId = User.Claims.Where(x => x.Type == "Id").FirstOrDefault()?.Value;
+            //int id = Convert.ToInt32(userId);
+            if (id != 0)
+            {
+                var accessToken = await GetAccessToken(id);
+
+                JWT tokenResult = new JWT(
+                    new JwtSecurityTokenHandler().WriteToken(accessToken),
+                    accessToken.ValidTo,
+                    null,
+                    null
+                );
+
+                return Ok(tokenResult);
+            }
+            return Unauthorized();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<JWT>> Token([FromBody] Login login)
         {
             // Verify account
             var user = await GetUser(login.Email);
             if (user == null)
             {
-                return BadRequest();
+                return BadRequest(new { message = "Tài khoản không tồn tại!" });
+            }
+            if (user.PasswordHash == null)
+            {
+                return BadRequest(new { message = "Vui lòng đăng nhập bằng tài khoản mạng xã hội!" });
             }
             bool verified = VerifyPassword(login.Password, user.PasswordHash);
             if (verified == false)
             {
-                return BadRequest();
+                return BadRequest(new { message = "Mật khẩu không khớp!" });
             }
 
             var accessToken = await GetAccessToken(user.Id);
+            var refreshToken = await GetRefreshToken(user.Id);
 
             JWT tokenResult = new JWT(
                 new JwtSecurityTokenHandler().WriteToken(accessToken), 
-                accessToken.ValidTo
+                accessToken.ValidTo,
+                new JwtSecurityTokenHandler().WriteToken(refreshToken),
+                refreshToken.ValidTo
             );
 
             return Ok(tokenResult);
@@ -151,7 +208,7 @@ namespace AcademyProject.Controllers
             var accessToken = new JwtSecurityToken(
                 issuer: configuration["JWTConfig:Issuer"],
                 audience: configuration["JWTConfig:Audience"],
-                expires: DateTime.UtcNow.AddHours(1),
+                expires: DateTime.UtcNow.AddMinutes(1),
                 signingCredentials: accessTokenCredentials,
                 claims: claims
             );
@@ -176,10 +233,10 @@ namespace AcademyProject.Controllers
             return refreshToken;
         }
 
-        private async Task<UserDTO> GetUser(string email)
+        private async Task<User> GetUser(string email)
         {
             var list = await userService.GetAll();
-            var user = list.Select(x => mapper.Map<UserDTO>(x)).FirstOrDefault(u => u.Email == email);
+            var user = list.FirstOrDefault(u => u.Email == email);
             return user;
         }
 
@@ -191,6 +248,19 @@ namespace AcademyProject.Controllers
                 return true;
             }
             return false;
+        }
+
+        private async Task<string> GetAsync(string uri)
+        {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
+            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+            using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
+            using (Stream stream = response.GetResponseStream())
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                return await reader.ReadToEndAsync();
+            }
         }
     }
 }

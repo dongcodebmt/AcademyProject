@@ -53,7 +53,7 @@ namespace AcademyProject.Controllers
             var course = mapper.Map<Course>(courseDTO);
             course = await courseService.Insert(course);
             courseDTO = mapper.Map<CourseDTO>(course);
-            return Ok(new { course });
+            return Ok(new { courseDTO });
         }
 
         // PUT api/<CourseController>/5

@@ -11,7 +11,8 @@ namespace AcademyProject.DTOs
         public int Id { get; set; }
         [Required(ErrorMessage = "The email is required")]
         public string Email { get; set; }
-        [Required(ErrorMessage = "The password hash is required")]
+        [Required(ErrorMessage = "The password is required")]
+        public string Password { get; set; }
         public string PasswordHash { get; set; }
         [Required(ErrorMessage = "The first name is required")]
         public string FirstName { get; set; }
