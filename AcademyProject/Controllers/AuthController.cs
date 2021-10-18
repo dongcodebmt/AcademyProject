@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -57,7 +58,57 @@ namespace AcademyProject.Controllers
             newUser = await userService.Insert(newUser);
 
             var accessToken = await GetAccessToken(newUser.Id);
-            var refreshToken = await GetRefreshToken(newUser.Id);
+            var refreshToken = GetRefreshToken(newUser.Id);
+
+            JWT tokenResult = new JWT(
+                new JwtSecurityTokenHandler().WriteToken(accessToken),
+                accessToken.ValidTo,
+                new JwtSecurityTokenHandler().WriteToken(refreshToken),
+                refreshToken.ValidTo
+            );
+
+            return Ok(tokenResult);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<JWT>> Facebook(string token)
+        {
+            string result = "";
+            try
+            {
+                //Get facebook user info from access token Oauth2
+                string url = "https://graph.facebook.com/me?fields=id,first_name,last_name,name,email,picture&access_token=" + token;
+                result = await GetAsync(url);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+
+            //Parse json
+            FacebookUser fbUser = JsonConvert.DeserializeObject<FacebookUser>(result);
+            dynamic data = JObject.Parse(result);
+            //fbUser.picture = data.picture.data.url;
+
+            if (fbUser.email == null)
+            {
+                return BadRequest();
+            }
+            var user = await GetUser(fbUser.email);
+            if (user == null)
+            {
+                //Create new User
+                User newUser = new User();
+                newUser.FirstName = fbUser.first_name;
+                newUser.LastName = fbUser.last_name;
+                newUser.Email = fbUser.email;
+                newUser.PasswordHash = null;
+
+                user = await userService.Insert(newUser);
+            }
+
+            var accessToken = await GetAccessToken(user.Id);
+            var refreshToken = GetRefreshToken(user.Id);
 
             JWT tokenResult = new JWT(
                 new JwtSecurityTokenHandler().WriteToken(accessToken),
@@ -72,10 +123,19 @@ namespace AcademyProject.Controllers
         [HttpPost]
         public async Task<ActionResult<JWT>> Google(string token)
         {
-            //Get google user info from access token Oauth2
-            string url = "https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + token;
-            string result = await GetAsync(url);
+            string result = "";
+            try
+            {
+                //Get google user info from access token Oauth2
+                string url = "https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + token;
+                result = await GetAsync(url);
+            } catch
+            {
+                return BadRequest();
+            }
+
             GoogleUser googleUser = JsonConvert.DeserializeObject<GoogleUser>(result);
+
             if (googleUser.email == null)
             {
                 return BadRequest();
@@ -94,7 +154,7 @@ namespace AcademyProject.Controllers
             }
 
             var accessToken = await GetAccessToken(user.Id);
-            var refreshToken = await GetRefreshToken(user.Id);
+            var refreshToken = GetRefreshToken(user.Id);
 
             JWT tokenResult = new JWT(
                 new JwtSecurityTokenHandler().WriteToken(accessToken),
@@ -148,10 +208,10 @@ namespace AcademyProject.Controllers
             }
 
             var accessToken = await GetAccessToken(user.Id);
-            var refreshToken = await GetRefreshToken(user.Id);
+            var refreshToken = GetRefreshToken(user.Id);
 
             JWT tokenResult = new JWT(
-                new JwtSecurityTokenHandler().WriteToken(accessToken), 
+                new JwtSecurityTokenHandler().WriteToken(accessToken),
                 accessToken.ValidTo,
                 new JwtSecurityTokenHandler().WriteToken(refreshToken),
                 refreshToken.ValidTo
@@ -208,14 +268,14 @@ namespace AcademyProject.Controllers
             var accessToken = new JwtSecurityToken(
                 issuer: configuration["JWTConfig:Issuer"],
                 audience: configuration["JWTConfig:Audience"],
-                expires: DateTime.UtcNow.AddMinutes(1),
+                expires: DateTime.UtcNow.AddMinutes(30),
                 signingCredentials: accessTokenCredentials,
                 claims: claims
             );
             return accessToken;
         }
 
-        private async Task<JwtSecurityToken> GetRefreshToken(int id)
+        private JwtSecurityToken GetRefreshToken(int id)
         {
             var claims = new List<Claim>();
             claims.Add(new Claim("Id", id.ToString()));

@@ -10,7 +10,9 @@ namespace AcademyProject.Entities
     {
         public string AccessToken { get; set; }
         public DateTime AccessTokenExpires { get; set; }
+        #nullable enable
         public string? RefreshToken { get; set; }
+        #nullable enable
         public DateTime? RefreshTokenExpires { get; set; }
         public JWT()
         {

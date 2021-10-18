@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-namespace AcademyProject.Entities
+﻿namespace AcademyProject.Entities
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class GoogleUser : ControllerBase
+    public class GoogleUser
     {
+        public string id { get; set; }
         public string name { get; set; }
         public string given_name { get; set; }
         public string family_name { get; set; }
