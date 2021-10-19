@@ -88,7 +88,7 @@ namespace AcademyProject.Controllers
             //Parse json
             FacebookUser fbUser = JsonConvert.DeserializeObject<FacebookUser>(result);
             dynamic data = JObject.Parse(result);
-            //fbUser.picture = data.picture.data.url;
+            fbUser.picture_url = data.picture.data.url;
 
             if (fbUser.email == null)
             {
