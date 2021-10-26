@@ -3,6 +3,7 @@ using AcademyProject.Entities;
 using AcademyProject.Models;
 using AcademyProject.Services;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -38,6 +39,22 @@ namespace AcademyProject.Controllers
             this.userService = userService;
             this.userRoleService = userRoleService;
             this.roleService = roleService;
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<ActionResult<UserDTO>> Me()
+        {
+            string userId = User.Claims.Where(x => x.Type == "Id").FirstOrDefault()?.Value;
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            int id = Convert.ToInt32(userId);
+            var list = await userService.GetAll();
+            var user = list.Select(x => mapper.Map<UserDTO>(x)).FirstOrDefault(u => u.Id == id);
+            user.PasswordHash = null;
+            return Ok(user);
         }
 
         [HttpPost]
@@ -170,8 +187,6 @@ namespace AcademyProject.Controllers
         public async Task<ActionResult<JWT>> Refresh(JWT jwt)
         {
             int id = ValidateRefreshToken(jwt.RefreshToken);
-            //string userId = User.Claims.Where(x => x.Type == "Id").FirstOrDefault()?.Value;
-            //int id = Convert.ToInt32(userId);
             if (id != 0)
             {
                 var accessToken = await GetAccessToken(id);
