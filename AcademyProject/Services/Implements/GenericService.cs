@@ -7,10 +7,13 @@ namespace AcademyProject.Services.Implements
     public class GenericService<TEntity> : IGenericService<TEntity> where TEntity : class
     {
         private IGenericRepository<TEntity> genericRepository;
+        
+
         public GenericService(IGenericRepository<TEntity> genericRepository)
         {
             this.genericRepository = genericRepository;
         }
+
         public async Task Delete(int id)
         {
             await genericRepository.Delete(id);

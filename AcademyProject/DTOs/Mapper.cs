@@ -22,6 +22,35 @@ namespace AcademyProject.DTOs
 
             CreateMap<CourseDTO, Course>();
             CreateMap<Course, CourseDTO>();
+
+            CreateMap<AnswerDTO, Answer>();
+            CreateMap<Answer, AnswerDTO>();
+
+            CreateMap<BlogCommentDTO, BlogComment>();
+            CreateMap<BlogComment, BlogCommentDTO>();
+
+            CreateMap<CategoryDTO, Category>();
+            CreateMap<Category, CategoryDTO>();
+
+            CreateMap<ImageDTO, Image>();
+            CreateMap<Image, ImageDTO>();
+
+            CreateMap<QuestionDTO, Question>();
+            CreateMap<Question, QuestionDTO>();
+
+            CreateMap<RequirementDTO, Requirement>();
+            CreateMap<Requirement, RequirementDTO>();
+
+            CreateMap<TrackDTO, Track>();
+            CreateMap<Track, TrackDTO>();
+
+            CreateMap<TrackStepDTO, TrackStep>();
+            CreateMap<TrackStep, TrackStepDTO>();
+
+            CreateMap<WillLearnDTO, WillLearn>();
+            CreateMap<WillLearn, WillLearnDTO>();
+
+
         }
     }
 }
