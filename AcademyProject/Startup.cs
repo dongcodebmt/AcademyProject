@@ -57,12 +57,32 @@ namespace AcademyProject
             services.AddScoped<IUserRoleRepository, UserRoleRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<ICourseRepository, CourseRepository>();
+            services.AddScoped<IBlogRepository, BlogRepository>();
+            services.AddScoped<IAnswerRepository, AnswerRepository>();
+            services.AddScoped<IBlogCommentRepository, BlogCommentRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IImageRepository, ImageRepository>();
+            services.AddScoped<IQuestionRepository, QuestionRepository>();
+            services.AddScoped<IRequirementRepository, RequirementRepository>();
+            services.AddScoped<ITrackRepository, TrackRepository>();
+            services.AddScoped<ITrackStepRepository, TrackStepRepository>();
+            services.AddScoped<IWillLearnRepository, WillLearnRepository>();
 
             // Services
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserRoleService, UserRoleService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<ICourseService, CourseService>();
+            services.AddScoped<IBlogService, BlogService>();
+            services.AddScoped<IAnswerService, AnswerService>();
+            services.AddScoped<IBlogCommentService, BlogCommentService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<IQuestionService, QuestionService>();
+            services.AddScoped<IRequirementService, RequirementService>();
+            services.AddScoped<ITrackService, TrackService>();
+            services.AddScoped<ITrackStepService, TrackStepService>();
+            services.AddScoped<IWillLearnService, WillLearnService>();
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
