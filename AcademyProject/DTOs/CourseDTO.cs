@@ -11,5 +11,6 @@ namespace AcademyProject.DTOs
         public DateTime CreateAt { get; set; }
         [Required(ErrorMessage = "The title is required")]
         public string Title { get; set; }
+        public int? PictureId { get; set; }
     }
 }

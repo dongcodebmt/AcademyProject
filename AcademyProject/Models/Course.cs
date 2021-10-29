@@ -19,9 +19,11 @@ namespace AcademyProject.Models
         public int CategoryId { get; set; }
         public DateTime CreateAt { get; set; }
         public string Title { get; set; }
+        public int? PictureId { get; set; }
 
         public virtual Category Category { get; set; }
         public virtual User Lecturer { get; set; }
+        public virtual Picture Picture { get; set; }
         public virtual ICollection<Requirement> Requirements { get; set; }
         public virtual ICollection<Track> Tracks { get; set; }
         public virtual ICollection<WillLearn> WillLearns { get; set; }

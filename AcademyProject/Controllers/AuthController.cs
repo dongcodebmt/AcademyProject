@@ -1,9 +1,6 @@
-﻿using AcademyProject.DTOs;
-using AcademyProject.Entities;
+﻿using AcademyProject.Entities;
 using AcademyProject.Models;
 using AcademyProject.Services;
-using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -17,7 +14,6 @@ using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace AcademyProject.Controllers
@@ -27,64 +23,18 @@ namespace AcademyProject.Controllers
     public class AuthController : ControllerBase
     {
         public IConfiguration configuration;
-        private readonly IMapper mapper;
         private readonly IUserService userService;
         private readonly IUserRoleService userRoleService;
         private readonly IRoleService roleService;
+        private readonly IPictureService pictureService;
 
-        public AuthController(IConfiguration config, IMapper mapper, IUserService userService, IUserRoleService userRoleService, IRoleService roleService)
+        public AuthController(IConfiguration config, IUserService userService, IUserRoleService userRoleService, IRoleService roleService, IPictureService pictureService)
         {
             configuration = config;
-            this.mapper = mapper;
             this.userService = userService;
             this.userRoleService = userRoleService;
             this.roleService = roleService;
-        }
-
-        [HttpGet]
-        [Authorize]
-        public async Task<ActionResult<UserDTO>> Me()
-        {
-            string userId = User.Claims.Where(x => x.Type == "Id").FirstOrDefault()?.Value;
-            if (userId == null)
-            {
-                return Unauthorized();
-            }
-            int id = Convert.ToInt32(userId);
-            var list = await userService.GetAll();
-            var user = list.Select(x => mapper.Map<UserDTO>(x)).FirstOrDefault(u => u.Id == id);
-            user.PasswordHash = null;
-            return Ok(user);
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<UserDTO>> Register([FromBody] UserDTO userDTO)
-        {
-            var user = await GetUser(userDTO.Email);
-            if (user != null)
-            {
-                return BadRequest(new { message = "Tài khoản đã tồn tại!" });
-            }
-            if (userDTO.Password.Length < 8)
-            {
-                return BadRequest(new { message = "Mật khẩu cần lớn hơn 8 ký tự!" });
-            }
-
-            userDTO.PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDTO.Password);
-            var newUser = mapper.Map<User>(userDTO);
-            newUser = await userService.Insert(newUser);
-
-            var accessToken = await GetAccessToken(newUser.Id);
-            var refreshToken = GetRefreshToken(newUser.Id);
-
-            JWT tokenResult = new JWT(
-                new JwtSecurityTokenHandler().WriteToken(accessToken),
-                accessToken.ValidTo,
-                new JwtSecurityTokenHandler().WriteToken(refreshToken),
-                refreshToken.ValidTo
-            );
-
-            return Ok(tokenResult);
+            this.pictureService = pictureService;
         }
 
         [HttpPost]
@@ -114,12 +64,18 @@ namespace AcademyProject.Controllers
             var user = await GetUser(fbUser.email);
             if (user == null)
             {
+                //Save image
+                Picture picture = new Picture();
+                picture.PicturePath = fbUser.picture_url;
+                picture = await pictureService.Insert(picture);
+
                 //Create new User
                 User newUser = new User();
                 newUser.FirstName = fbUser.first_name;
                 newUser.LastName = fbUser.last_name;
                 newUser.Email = fbUser.email;
                 newUser.PasswordHash = null;
+                newUser.PictureId = picture.Id;
 
                 user = await userService.Insert(newUser);
             }
@@ -160,12 +116,18 @@ namespace AcademyProject.Controllers
             var user = await GetUser(googleUser.email);
             if (user == null)
             {
+                //Save image
+                Picture picture = new Picture();
+                picture.PicturePath = googleUser.picture;
+                picture = await pictureService.Insert(picture);
+
                 //Create new User
                 User newUser = new User();
                 newUser.FirstName = googleUser.given_name;
                 newUser.LastName = googleUser.family_name;
                 newUser.Email = googleUser.email;
                 newUser.PasswordHash = null;
+                newUser.PictureId = picture.Id;
 
                 user = await userService.Insert(newUser);
             }

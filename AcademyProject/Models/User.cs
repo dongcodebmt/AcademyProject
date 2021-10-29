@@ -13,7 +13,6 @@ namespace AcademyProject.Models
             BlogComments = new HashSet<BlogComment>();
             Blogs = new HashSet<Blog>();
             Courses = new HashSet<Course>();
-            Images = new HashSet<Image>();
             Questions = new HashSet<Question>();
             UserRoles = new HashSet<UserRole>();
         }
@@ -23,12 +22,13 @@ namespace AcademyProject.Models
         public string PasswordHash { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public int? PictureId { get; set; }
 
+        public virtual Picture Picture { get; set; }
         public virtual ICollection<Answer> Answers { get; set; }
         public virtual ICollection<BlogComment> BlogComments { get; set; }
         public virtual ICollection<Blog> Blogs { get; set; }
         public virtual ICollection<Course> Courses { get; set; }
-        public virtual ICollection<Image> Images { get; set; }
         public virtual ICollection<Question> Questions { get; set; }
         public virtual ICollection<UserRole> UserRoles { get; set; }
     }

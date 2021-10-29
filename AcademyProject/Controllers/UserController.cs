@@ -1,65 +1,138 @@
 ﻿using AcademyProject.DTOs;
+using AcademyProject.Entities;
 using AcademyProject.Models;
 using AcademyProject.Services;
 using AutoMapper;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace AcademyProject.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IUserService userService;
+        public IConfiguration configuration;
         private readonly IMapper mapper;
-        public UserController(IUserService userService, IMapper mapper)
+        private readonly IUserService userService;
+        private readonly IPictureService pictureService;
+
+        public UserController(IMapper mapper, IConfiguration configuration, IUserService userService, IPictureService pictureService)
         {
-            this.userService = userService;
             this.mapper = mapper;
+            this.configuration = configuration;
+            this.userService = userService;
+            this.pictureService = pictureService;
         }
-        // GET: api/<UserController>
+
         [HttpGet]
-        public IEnumerable<string> Get()
+        [Authorize]
+        public async Task<ActionResult<User2DTO>> Me()
         {
-            return new string[] { "value1", "value2" };
+            string userId = User.Claims.Where(x => x.Type == "Id").FirstOrDefault()?.Value;
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            int id = Convert.ToInt32(userId);
+            var users = await userService.GetAll();
+            var user = users.FirstOrDefault(u => u.Id == id);
+            if (user == null)
+            {
+                return BadRequest();
+            }
+            var pictures = await pictureService.GetAll();
+            var picture = pictures.FirstOrDefault(i => i.Id == user.PictureId);
+            //Detect is local images or gg, fb
+            string pictureUrl = picture.PicturePath;
+            if (pictureUrl.Substring(0, 1) == "/")
+            {
+                pictureUrl = configuration["ServerHostName"] + picture.PicturePath;
+            }
+            User2DTO eUser = new User2DTO();
+            eUser.Id = user.Id;
+            eUser.Email = user.Email;
+            eUser.FirstName = user.FirstName;
+            eUser.LastName = user.LastName;
+            eUser.Picture = pictureUrl;
+
+            return Ok(eUser);
         }
 
-        // GET api/<UserController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<UserController>
         [HttpPost]
-        public async Task<ActionResult<UserDTO>> Post([FromBody] UserDTO userDTO)
+        public async Task<ActionResult<User2DTO>> Register([FromBody] UserDTO userDTO)
         {
+            var list = await userService.GetAll();
+            var user = list.FirstOrDefault(u => u.Email == userDTO.Email);
+            if (user != null)
+            {
+                return BadRequest(new { message = "Tài khoản đã tồn tại!" });
+            }
+            if (userDTO.Password.Length < 8)
+            {
+                return BadRequest(new { message = "Mật khẩu cần lớn hơn 8 ký tự!" });
+            }
+
             userDTO.PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDTO.Password);
-            var user = mapper.Map<User>(userDTO);
-            user = await userService.Insert(user);
-            userDTO = mapper.Map<UserDTO>(user);
-            userDTO.Password = null;
-            userDTO.PasswordHash = null;
-            return Ok(new { userDTO });
+            var newUser = mapper.Map<User>(userDTO);
+            newUser = await userService.Insert(newUser);
+
+            User2DTO eUser = new User2DTO();
+            eUser.Id = newUser.Id;
+            eUser.Email = newUser.Email;
+            eUser.FirstName = newUser.FirstName;
+            eUser.LastName = newUser.LastName;
+
+            return Ok(eUser);
         }
 
-        // PUT api/<UserController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> Password([FromBody] Password password)
         {
+            string userId = User.Claims.Where(x => x.Type == "Id").FirstOrDefault()?.Value;
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            if (password.NewPassword.Length < 8)
+            {
+                return BadRequest(new { message = "Mật khẩu mới cần lớn hơn 8 ký tự!" });
+            }
+            int id = Convert.ToInt32(userId);
+            var users = await userService.GetAll();
+            var user = users.FirstOrDefault(u => u.Id == id);
+            bool verified = BCrypt.Net.BCrypt.Verify(password.OldPassword, user.PasswordHash);
+            if (!verified)
+            {
+                return BadRequest(new { message = "Mật khẩu cũ không đúng!" });
+            }
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(password.NewPassword);
+            user = await userService.Update(user);
+            return Ok();
         }
 
-        // DELETE api/<UserController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpPost]
+        [Authorize]
+        public async Task<ActionResult<User2DTO>> Infomation([FromBody] User2DTO userDTO)
         {
+            string userId = User.Claims.Where(x => x.Type == "Id").FirstOrDefault()?.Value;
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            int id = Convert.ToInt32(userId);
+            var users = await userService.GetAll();
+            var user = users.FirstOrDefault(u => u.Id == id);
+            user.FirstName = userDTO.FirstName;
+            user.LastName = userDTO.LastName;
+            user.Email = userDTO.Email;
+            user = await userService.Update(user);
+            return Ok(user);
         }
     }
 }

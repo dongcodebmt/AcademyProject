@@ -13,7 +13,6 @@ namespace AcademyProject.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class CourseController : ControllerBase
     {
         private readonly ICourseService courseService;

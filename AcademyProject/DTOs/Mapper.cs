@@ -14,6 +14,9 @@ namespace AcademyProject.DTOs
             CreateMap<UserDTO, User>();
             CreateMap<User, UserDTO>();
 
+            CreateMap<User2DTO, User>();
+            CreateMap<User, User2DTO>();
+
             CreateMap<UserRoleDTO, UserRole>();
             CreateMap<UserRole, UserRoleDTO>();
 
@@ -32,8 +35,8 @@ namespace AcademyProject.DTOs
             CreateMap<CategoryDTO, Category>();
             CreateMap<Category, CategoryDTO>();
 
-            CreateMap<ImageDTO, Image>();
-            CreateMap<Image, ImageDTO>();
+            CreateMap<PictureDTO, Picture>();
+            CreateMap<Picture, PictureDTO>();
 
             CreateMap<QuestionDTO, Question>();
             CreateMap<Question, QuestionDTO>();

@@ -19,8 +19,10 @@ namespace AcademyProject.Models
         public string Content { get; set; }
         public DateTime CreateAt { get; set; }
         public bool IsDeleted { get; set; }
+        public int? PictureId { get; set; }
 
         public virtual Category Category { get; set; }
+        public virtual Picture Picture { get; set; }
         public virtual User User { get; set; }
         public virtual ICollection<BlogComment> BlogComments { get; set; }
     }

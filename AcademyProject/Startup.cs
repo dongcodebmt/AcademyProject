@@ -61,7 +61,7 @@ namespace AcademyProject
             services.AddScoped<IAnswerRepository, AnswerRepository>();
             services.AddScoped<IBlogCommentRepository, BlogCommentRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
-            services.AddScoped<IImageRepository, ImageRepository>();
+            services.AddScoped<IPictureRepository, PictureRepository>();
             services.AddScoped<IQuestionRepository, QuestionRepository>();
             services.AddScoped<IRequirementRepository, RequirementRepository>();
             services.AddScoped<ITrackRepository, TrackRepository>();
@@ -77,7 +77,7 @@ namespace AcademyProject
             services.AddScoped<IAnswerService, AnswerService>();
             services.AddScoped<IBlogCommentService, BlogCommentService>();
             services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<IPictureService, PictureService>();
             services.AddScoped<IQuestionService, QuestionService>();
             services.AddScoped<IRequirementService, RequirementService>();
             services.AddScoped<ITrackService, TrackService>();
@@ -113,6 +113,7 @@ namespace AcademyProject
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "AcademyProject", Version = "v1" });
+                c.EnableAnnotations();
             });
         }
 
@@ -127,6 +128,8 @@ namespace AcademyProject
             }
 
             app.UseHttpsRedirection();
+
+            app.UseStaticFiles();
 
             app.UseRouting();
 
