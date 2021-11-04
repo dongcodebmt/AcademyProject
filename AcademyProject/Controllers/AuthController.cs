@@ -231,11 +231,10 @@ namespace AcademyProject.Controllers
             var claims = new List<Claim>();
             claims.Add(new Claim("Id", id.ToString()));
 
-            var list = await userRoleService.GetAll();
-            var userRoles = list.Where(x => x.UserId == id).ToList();
+            var userRoles = await userRoleService.GetList(x => x.UserId == id);
             foreach (var item in userRoles)
             {
-                var role = await roleService.GetById(item.UserId);
+                var role = await roleService.GetById(item.RoleId);
                 claims.Add(new Claim(ClaimTypes.Role, role.Name));
             }
 
@@ -272,9 +271,7 @@ namespace AcademyProject.Controllers
 
         private async Task<User> GetUser(string email)
         {
-            var list = await userService.GetAll();
-            var user = list.FirstOrDefault(u => u.Email == email);
-            return user;
+            return await userService.Get(x => x.Email == email);
         }
 
         private bool VerifyPassword(string password, string passwordHash)

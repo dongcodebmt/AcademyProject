@@ -16,6 +16,7 @@ namespace AcademyProject.Models
 
         public int Id { get; set; }
         public string Name { get; set; }
+        public bool IsDeleted { get; set; }
 
         public virtual ICollection<Blog> Blogs { get; set; }
         public virtual ICollection<Course> Courses { get; set; }

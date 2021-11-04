@@ -11,5 +11,7 @@ namespace AcademyProject.DTOs
         public int TrackId { get; set; }
         public string Title { get; set; }
         public int Duration { get; set; }
+        public int Type { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

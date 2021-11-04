@@ -66,7 +66,7 @@ namespace AcademyProject.Controllers
             }
             answer.QuestionId = answerDTO.QuestionId;
             answer.UserId = answerDTO.UserId;
-            answer.Comment = answerDTO.Comment;
+            answer.Content = answerDTO.Content;
             answer.CreateAt = answerDTO.CreateAt;
             answer = await answerService.Update(answer);
 

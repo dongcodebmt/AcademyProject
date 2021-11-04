@@ -53,36 +53,38 @@ namespace AcademyProject
             });
 
             // Repositories
-            services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IUserRoleRepository, UserRoleRepository>();
-            services.AddScoped<IRoleRepository, RoleRepository>();
-            services.AddScoped<ICourseRepository, CourseRepository>();
-            services.AddScoped<IBlogRepository, BlogRepository>();
-            services.AddScoped<IAnswerRepository, AnswerRepository>();
-            services.AddScoped<IBlogCommentRepository, BlogCommentRepository>();
-            services.AddScoped<ICategoryRepository, CategoryRepository>();
-            services.AddScoped<IPictureRepository, PictureRepository>();
-            services.AddScoped<IQuestionRepository, QuestionRepository>();
-            services.AddScoped<IRequirementRepository, RequirementRepository>();
-            services.AddScoped<ITrackRepository, TrackRepository>();
-            services.AddScoped<ITrackStepRepository, TrackStepRepository>();
-            services.AddScoped<IWillLearnRepository, WillLearnRepository>();
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            //services.AddScoped<IUserRepository, UserRepository>();
+            //services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+            //services.AddScoped<IRoleRepository, RoleRepository>();
+            //services.AddScoped<ICourseRepository, CourseRepository>();
+            //services.AddScoped<IBlogRepository, BlogRepository>();
+            //services.AddScoped<IAnswerRepository, AnswerRepository>();
+            //services.AddScoped<IBlogCommentRepository, BlogCommentRepository>();
+            //services.AddScoped<ICategoryRepository, CategoryRepository>();
+            //services.AddScoped<IPictureRepository, PictureRepository>();
+            //services.AddScoped<IQuestionRepository, QuestionRepository>();
+            //services.AddScoped<IRequirementRepository, RequirementRepository>();
+            //services.AddScoped<ITrackRepository, TrackRepository>();
+            //services.AddScoped<ITrackStepRepository, TrackStepRepository>();
+            //services.AddScoped<IWillLearnRepository, WillLearnRepository>();
 
             // Services
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IUserRoleService, UserRoleService>();
-            services.AddScoped<IRoleService, RoleService>();
-            services.AddScoped<ICourseService, CourseService>();
-            services.AddScoped<IBlogService, BlogService>();
-            services.AddScoped<IAnswerService, AnswerService>();
-            services.AddScoped<IBlogCommentService, BlogCommentService>();
-            services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<IPictureService, PictureService>();
-            services.AddScoped<IQuestionService, QuestionService>();
-            services.AddScoped<IRequirementService, RequirementService>();
-            services.AddScoped<ITrackService, TrackService>();
-            services.AddScoped<ITrackStepService, TrackStepService>();
-            services.AddScoped<IWillLearnService, WillLearnService>();
+            services.AddScoped(typeof(IGenericService<>), typeof(GenericService<>));
+            //services.AddScoped<IUserService, UserService>();
+            //services.AddScoped<IUserRoleService, UserRoleService>();
+            //services.AddScoped<IRoleService, RoleService>();
+            //services.AddScoped<ICourseService, CourseService>();
+            //services.AddScoped<IBlogService, BlogService>();
+            //services.AddScoped<IAnswerService, AnswerService>();
+            //services.AddScoped<IBlogCommentService, BlogCommentService>();
+            //services.AddScoped<ICategoryService, CategoryService>();
+            //services.AddScoped<IPictureService, PictureService>();
+            //services.AddScoped<IQuestionService, QuestionService>();
+            //services.AddScoped<IRequirementService, RequirementService>();
+            //services.AddScoped<ITrackService, TrackService>();
+            //services.AddScoped<ITrackStepService, TrackStepService>();
+            //services.AddScoped<IWillLearnService, WillLearnService>();
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

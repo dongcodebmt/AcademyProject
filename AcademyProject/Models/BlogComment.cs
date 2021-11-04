@@ -10,7 +10,7 @@ namespace AcademyProject.Models
         public int Id { get; set; }
         public int BlogId { get; set; }
         public int UserId { get; set; }
-        public string Comment { get; set; }
+        public string Content { get; set; }
         public DateTime CreateAt { get; set; }
 
         public virtual Blog Blog { get; set; }

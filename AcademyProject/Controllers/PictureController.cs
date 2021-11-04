@@ -1,4 +1,5 @@
-﻿using AcademyProject.Models;
+﻿using AcademyProject.DTOs;
+using AcademyProject.Models;
 using AcademyProject.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -26,6 +27,22 @@ namespace AcademyProject.Controllers
             this.environment = environment;
             this.pictureService = pictureService;
             this.userService = userService;
+        }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<ActionResult<PictureDTO>> Upload([FromForm] IFormFile file)
+        {
+            string filePath = FileWriter(file);
+            if (filePath == null)
+            {
+                return BadRequest();
+            }
+            //Create object image then insert to DB
+            Picture picture = new Picture();
+            picture.PicturePath = filePath;
+            picture = await pictureService.Insert(picture);
+            return Ok(picture);
         }
 
         [HttpPost]

@@ -4,6 +4,7 @@ using AcademyProject.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,12 +16,16 @@ namespace AcademyProject.Controllers
     [ApiController]
     public class CourseController : ControllerBase
     {
-        private readonly ICourseService courseService;
+        public IConfiguration configuration;
         private readonly IMapper mapper;
-        public CourseController(ICourseService courseService, IMapper mapper)
+        private readonly ICourseService courseService;
+        private readonly IPictureService pictureService;
+        public CourseController(IMapper mapper, IConfiguration configuration, ICourseService courseService, IPictureService pictureService)
         {
-            this.courseService = courseService;
+            this.configuration = configuration;
             this.mapper = mapper;
+            this.courseService = courseService;
+            this.pictureService = pictureService;
         }
 
         // GET: api/<CourseController>
@@ -28,8 +33,19 @@ namespace AcademyProject.Controllers
         public async Task<ActionResult<CourseDTO>> Get()
         {
             var list = await courseService.GetAll();
-            var listCourse = list.Select(x => mapper.Map<CourseDTO>(x)).ToList();
-            return Ok(new { listCourse });
+            var courses = list.Select(x => mapper.Map<CourseDTO>(x)).ToList();
+            foreach (var item in courses)
+            {
+                var picture = await pictureService.GetById((int)item.PictureId);
+                if (picture.PicturePath.Substring(0, 1) == "/")
+                {
+                    item.PicturePath = configuration["ServerHostName"] + picture.PicturePath;
+                } else
+                {
+                    item.PicturePath = picture.PicturePath;
+                }
+            }
+            return Ok(new { courses });
         }
 
         // GET api/<CourseController>/5
@@ -42,6 +58,15 @@ namespace AcademyProject.Controllers
                 return NotFound();
             }
             var courseDTO = mapper.Map<CourseDTO>(course);
+            var picture = await pictureService.GetById((int)courseDTO.PictureId);
+            if (picture.PicturePath.Substring(0, 1) == "/")
+            {
+                courseDTO.PicturePath = configuration["ServerHostName"] + picture.PicturePath;
+            }
+            else
+            {
+                courseDTO.PicturePath = picture.PicturePath;
+            }
             return Ok(new { courseDTO });
         }
 

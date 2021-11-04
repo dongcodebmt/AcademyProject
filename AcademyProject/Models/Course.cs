@@ -17,9 +17,11 @@ namespace AcademyProject.Models
         public int Id { get; set; }
         public int LecturerId { get; set; }
         public int CategoryId { get; set; }
+        public int? PictureId { get; set; }
         public DateTime CreateAt { get; set; }
         public string Title { get; set; }
-        public int? PictureId { get; set; }
+        public string Description { get; set; }
+        public bool IsDeleted { get; set; }
 
         public virtual Category Category { get; set; }
         public virtual User Lecturer { get; set; }

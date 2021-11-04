@@ -66,7 +66,7 @@ namespace AcademyProject.Controllers
             }
             blogComment.BlogId = blogCommentDTO.BlogId;
             blogComment.UserId = blogCommentDTO.UserId;
-            blogComment.Comment = blogCommentDTO.Comment;
+            blogComment.Content = blogCommentDTO.Content;
             blogComment.CreateAt = blogCommentDTO.CreateAt;
 
             blogCommentDTO = mapper.Map<BlogCommentDTO>(blogComment);

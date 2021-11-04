@@ -14,6 +14,6 @@ namespace AcademyProject.DTOs
         [Required(ErrorMessage = "The last name is required")]
         public string LastName { get; set; }
         [SwaggerSchema(ReadOnly = true)]
-        public string? Picture { get; set; }
+        public string Picture { get; set; }
     }
 }

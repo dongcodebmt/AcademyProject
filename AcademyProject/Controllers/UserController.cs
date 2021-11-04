@@ -18,10 +18,12 @@ namespace AcademyProject.Controllers
     {
         public IConfiguration configuration;
         private readonly IMapper mapper;
-        private readonly IUserService userService;
-        private readonly IPictureService pictureService;
+        private readonly IGenericService<User> userService;
+        private readonly IGenericService<Picture> pictureService;
+        //private readonly IUserService userService;
+        //private readonly IPictureService pictureService;
 
-        public UserController(IMapper mapper, IConfiguration configuration, IUserService userService, IPictureService pictureService)
+        public UserController(IMapper mapper, IConfiguration configuration, IGenericService<User> userService, IGenericService<Picture> pictureService)
         {
             this.mapper = mapper;
             this.configuration = configuration;
@@ -29,25 +31,32 @@ namespace AcademyProject.Controllers
             this.pictureService = pictureService;
         }
 
+        protected int GetCurrentUserId()
+        {
+            string userId = User.Claims.Where(x => x.Type == "Id").FirstOrDefault()?.Value;
+            int id = Convert.ToInt32(userId);
+            return id;
+        }
+
         [HttpGet]
         [Authorize]
         public async Task<ActionResult<User2DTO>> Me()
         {
-            string userId = User.Claims.Where(x => x.Type == "Id").FirstOrDefault()?.Value;
-            if (userId == null)
+            int userId = GetCurrentUserId();
+            if (userId == 0)
             {
                 return Unauthorized();
             }
-            int id = Convert.ToInt32(userId);
-            var users = await userService.GetAll();
-            var user = users.FirstOrDefault(u => u.Id == id);
+
+            //Get user
+            var user = await userService.Get(u => u.Id == userId);
             if (user == null)
             {
                 return BadRequest();
             }
-            var pictures = await pictureService.GetAll();
-            var picture = pictures.FirstOrDefault(i => i.Id == user.PictureId);
-            //Detect is local images or gg, fb
+            var picture = await pictureService.Get(i => i.Id == user.PictureId);
+
+            //Detect is local images or other host
             string pictureUrl = picture.PicturePath;
             if (pictureUrl.Substring(0, 1) == "/")
             {
@@ -66,8 +75,7 @@ namespace AcademyProject.Controllers
         [HttpPost]
         public async Task<ActionResult<User2DTO>> Register([FromBody] UserDTO userDTO)
         {
-            var list = await userService.GetAll();
-            var user = list.FirstOrDefault(u => u.Email == userDTO.Email);
+            var user = await userService.Get(u => u.Email == userDTO.Email);
             if (user != null)
             {
                 return BadRequest(new { message = "Tài khoản đã tồn tại!" });
@@ -76,8 +84,9 @@ namespace AcademyProject.Controllers
             {
                 return BadRequest(new { message = "Mật khẩu cần lớn hơn 8 ký tự!" });
             }
-
+            //Hash password
             userDTO.PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDTO.Password);
+            //Mapper DTO to User and insert to db
             var newUser = mapper.Map<User>(userDTO);
             newUser = await userService.Insert(newUser);
 
@@ -94,8 +103,8 @@ namespace AcademyProject.Controllers
         [Authorize]
         public async Task<IActionResult> Password([FromBody] Password password)
         {
-            string userId = User.Claims.Where(x => x.Type == "Id").FirstOrDefault()?.Value;
-            if (userId == null)
+            int userId = GetCurrentUserId();
+            if (userId == 0)
             {
                 return Unauthorized();
             }
@@ -103,9 +112,8 @@ namespace AcademyProject.Controllers
             {
                 return BadRequest(new { message = "Mật khẩu mới cần lớn hơn 8 ký tự!" });
             }
-            int id = Convert.ToInt32(userId);
-            var users = await userService.GetAll();
-            var user = users.FirstOrDefault(u => u.Id == id);
+
+            var user = await userService.Get(u => u.Id == userId);
             bool verified = BCrypt.Net.BCrypt.Verify(password.OldPassword, user.PasswordHash);
             if (!verified)
             {
@@ -116,18 +124,17 @@ namespace AcademyProject.Controllers
             return Ok();
         }
 
-        [HttpPost]
+        [HttpPut]
         [Authorize]
         public async Task<ActionResult<User2DTO>> Infomation([FromBody] User2DTO userDTO)
         {
-            string userId = User.Claims.Where(x => x.Type == "Id").FirstOrDefault()?.Value;
-            if (userId == null)
+            int userId = GetCurrentUserId();
+            if (userId == 0)
             {
                 return Unauthorized();
             }
-            int id = Convert.ToInt32(userId);
-            var users = await userService.GetAll();
-            var user = users.FirstOrDefault(u => u.Id == id);
+
+            var user = await userService.Get(u => u.Id == userId);
             user.FirstName = userDTO.FirstName;
             user.LastName = userDTO.LastName;
             user.Email = userDTO.Email;
