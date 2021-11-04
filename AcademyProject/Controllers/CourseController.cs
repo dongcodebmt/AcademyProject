@@ -18,9 +18,9 @@ namespace AcademyProject.Controllers
     {
         public IConfiguration configuration;
         private readonly IMapper mapper;
-        private readonly ICourseService courseService;
-        private readonly IPictureService pictureService;
-        public CourseController(IMapper mapper, IConfiguration configuration, ICourseService courseService, IPictureService pictureService)
+        private readonly IGenericService<Course> courseService;
+        private readonly IGenericService<Picture> pictureService;
+        public CourseController(IMapper mapper, IConfiguration configuration, IGenericService<Course> courseService, IGenericService<Picture> pictureService)
         {
             this.configuration = configuration;
             this.mapper = mapper;

@@ -16,9 +16,9 @@ namespace AcademyProject.Controllers
     [ApiController]
     public class TrackStepController : ControllerBase
     {
-        private readonly ITrackStepService trackStepService;
+        private readonly IGenericService<TrackStep> trackStepService;
         private readonly IMapper mapper;
-        public TrackStepController(ITrackStepService trackStepService, IMapper mapper)
+        public TrackStepController(IGenericService<TrackStep> trackStepService, IMapper mapper)
         {
             this.trackStepService = trackStepService;
             this.mapper = mapper;

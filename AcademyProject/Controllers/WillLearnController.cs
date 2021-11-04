@@ -16,9 +16,9 @@ namespace AcademyProject.Controllers
     [ApiController]
     public class WillLearnController : ControllerBase
     {
-        private readonly IWillLearnService willLearnService;
+        private readonly IGenericService<WillLearn> willLearnService;
         private readonly IMapper mapper;
-        public WillLearnController(IWillLearnService willLearnService, IMapper mapper)
+        public WillLearnController(IGenericService<WillLearn> willLearnService, IMapper mapper)
         {
             this.willLearnService = willLearnService;
             this.mapper = mapper;

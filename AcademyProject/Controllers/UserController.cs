@@ -20,8 +20,6 @@ namespace AcademyProject.Controllers
         private readonly IMapper mapper;
         private readonly IGenericService<User> userService;
         private readonly IGenericService<Picture> pictureService;
-        //private readonly IUserService userService;
-        //private readonly IPictureService pictureService;
 
         public UserController(IMapper mapper, IConfiguration configuration, IGenericService<User> userService, IGenericService<Picture> pictureService)
         {

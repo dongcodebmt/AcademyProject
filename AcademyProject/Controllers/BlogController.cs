@@ -16,9 +16,9 @@ namespace AcademyProject.Controllers
     [ApiController]
     public class BlogController : ControllerBase
     {
-        private readonly IBlogService blogService;
+        private readonly IGenericService<Blog> blogService;
         private readonly IMapper mapper;
-        public BlogController(IBlogService blogService, IMapper mapper)
+        public BlogController(IGenericService<Blog> blogService, IMapper mapper)
         {
             this.blogService = blogService;
             this.mapper = mapper;

@@ -16,9 +16,9 @@ namespace AcademyProject.Controllers
     [ApiController]
     public class RequirementController : ControllerBase
     {
-        private readonly IRequirementService requirementrService;
+        private readonly IGenericService<Requirement> requirementrService;
         private readonly IMapper mapper;
-        public RequirementController(IRequirementService requirementrService, IMapper mapper)
+        public RequirementController(IGenericService<Requirement> requirementrService, IMapper mapper)
         {
             this.requirementrService = requirementrService;
             this.mapper = mapper;

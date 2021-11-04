@@ -18,11 +18,11 @@ namespace AcademyProject.Controllers
     [ApiController]
     public class PictureController : ControllerBase
     {
-        private readonly IPictureService pictureService;
-        private readonly IUserService userService;
         private readonly IWebHostEnvironment environment;
+        private readonly IGenericService<User> userService;
+        private readonly IGenericService<Picture> pictureService;
 
-        public PictureController(IWebHostEnvironment environment, IPictureService pictureService, IUserService userService)
+        public PictureController(IWebHostEnvironment environment, IGenericService<Picture> pictureService, IGenericService<User> userService)
         {
             this.environment = environment;
             this.pictureService = pictureService;

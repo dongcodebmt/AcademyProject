@@ -16,9 +16,9 @@ namespace AcademyProject.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly ICategoryService categoryService;
+        private readonly IGenericService<Category> categoryService;
         private readonly IMapper mapper;
-        public CategoryController(ICategoryService categoryService, IMapper mapper)
+        public CategoryController(IGenericService<Category> categoryService, IMapper mapper)
         {
             this.categoryService = categoryService;
             this.mapper = mapper;

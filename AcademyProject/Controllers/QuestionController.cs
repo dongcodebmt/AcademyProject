@@ -16,9 +16,9 @@ namespace AcademyProject.Controllers
     [ApiController]
     public class QuestionController : ControllerBase
     {
-        private readonly IQuestionService questionService;
+        private readonly IGenericService<Question> questionService;
         private readonly IMapper mapper;
-        public QuestionController(IQuestionService questionService, IMapper mapper)
+        public QuestionController(IGenericService<Question> questionService, IMapper mapper)
         {
             this.questionService = questionService;
             this.mapper = mapper;

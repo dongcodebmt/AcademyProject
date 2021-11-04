@@ -23,12 +23,12 @@ namespace AcademyProject.Controllers
     public class AuthController : ControllerBase
     {
         public IConfiguration configuration;
-        private readonly IUserService userService;
-        private readonly IUserRoleService userRoleService;
-        private readonly IRoleService roleService;
-        private readonly IPictureService pictureService;
+        private readonly IGenericService<User> userService;
+        private readonly IGenericService<UserRole> userRoleService;
+        private readonly IGenericService<Role> roleService;
+        private readonly IGenericService<Picture> pictureService;
 
-        public AuthController(IConfiguration config, IUserService userService, IUserRoleService userRoleService, IRoleService roleService, IPictureService pictureService)
+        public AuthController(IConfiguration config, IGenericService<User> userService, IGenericService<UserRole> userRoleService, IGenericService<Role> roleService, IGenericService<Picture> pictureService)
         {
             configuration = config;
             this.userService = userService;
