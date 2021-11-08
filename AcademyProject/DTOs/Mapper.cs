@@ -47,13 +47,26 @@ namespace AcademyProject.DTOs
             CreateMap<TrackDTO, Track>();
             CreateMap<Track, TrackDTO>();
 
-            CreateMap<TrackStepDTO, TrackStep>();
-            CreateMap<TrackStep, TrackStepDTO>();
+            CreateMap<StepDTO, Step>();
+            CreateMap<Step, StepDTO>();
 
             CreateMap<WillLearnDTO, WillLearn>();
             CreateMap<WillLearn, WillLearnDTO>();
 
+            CreateMap<ExamQuestionDTO, ExamQuestion>();
+            CreateMap<ExamQuestion, ExamQuestionDTO>();
 
+            CreateMap<ExamOptionDTO, ExamOption>();
+            CreateMap<ExamOption, ExamOptionDTO>();
+
+            CreateMap<ExamRightOptionDTO, ExamRightOption>();
+            CreateMap<ExamRightOption, ExamRightOptionDTO>();
+
+            CreateMap<ExamUserDTO, ExamUser>();
+            CreateMap<ExamUser, ExamUserDTO>();
+
+            CreateMap<ExamDetailDTO, ExamDetail>();
+            CreateMap<ExamDetail, ExamDetailDTO>();
         }
     }
 }

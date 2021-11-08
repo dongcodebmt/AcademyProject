@@ -2,10 +2,8 @@
 using AcademyProject.Models;
 using AcademyProject.Services;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,24 +18,33 @@ namespace AcademyProject.Controllers
         private readonly IMapper mapper;
         private readonly IGenericService<Course> courseService;
         private readonly IGenericService<Picture> pictureService;
-        public CourseController(IMapper mapper, IConfiguration configuration, IGenericService<Course> courseService, IGenericService<Picture> pictureService)
+        private readonly IGenericService<WillLearn> willLearnService;
+        private readonly IGenericService<Requirement> requirementService;
+        private readonly IGenericService<Track> trackService;
+        private readonly IGenericService<ExamQuestion> examQuestionService;
+        public CourseController(IMapper mapper, IConfiguration configuration, IGenericService<Course> courseService, IGenericService<Picture> pictureService,
+            IGenericService<WillLearn> willLearnService, IGenericService<Requirement> requirementService, IGenericService<Track> trackService,
+            IGenericService<ExamQuestion> examQuestionService)
         {
             this.configuration = configuration;
             this.mapper = mapper;
             this.courseService = courseService;
             this.pictureService = pictureService;
+            this.willLearnService = willLearnService;
+            this.requirementService = requirementService;
+            this.trackService = trackService;
+            this.examQuestionService = examQuestionService;
         }
 
-        // GET: api/<CourseController>
         [HttpGet]
-        public async Task<ActionResult<CourseDTO>> Get()
+        public async Task<ActionResult<List<CourseDTO>>> Get()
         {
             var list = await courseService.GetAll();
             var courses = list.Select(x => mapper.Map<CourseDTO>(x)).ToList();
             foreach (var item in courses)
             {
                 var picture = await pictureService.GetById((int)item.PictureId);
-                if (picture.PicturePath.Substring(0, 1) == "/")
+                if (picture.PicturePath != "/" && picture.PicturePath.Substring(0, 1) == "/")
                 {
                     item.PicturePath = configuration["ServerHostName"] + picture.PicturePath;
                 } else
@@ -45,10 +52,9 @@ namespace AcademyProject.Controllers
                     item.PicturePath = picture.PicturePath;
                 }
             }
-            return Ok(new { courses });
+            return Ok(courses);
         }
 
-        // GET api/<CourseController>/5
         [HttpGet("{id}")]
         public async Task<ActionResult<CourseDTO>> Get(int id)
         {
@@ -67,20 +73,63 @@ namespace AcademyProject.Controllers
             {
                 courseDTO.PicturePath = picture.PicturePath;
             }
-            return Ok(new { courseDTO });
+            return Ok(courseDTO);
         }
 
-        // POST api/<CourseController>
+        [HttpGet("{id}/WillLearns")]
+        public async Task<ActionResult<List<WillLearnDTO>>> WillLearns(int id)
+        {
+            var list = await willLearnService.GetList(x => x.CourseId == id);
+            if (list == null)
+            {
+                return NotFound();
+            }
+            return Ok(new { list });
+        }
+
+        [HttpGet("{id}/Requirements")]
+        public async Task<ActionResult<List<RequirementDTO>>> Requirements(int id)
+        {
+            var list = await requirementService.GetList(x => x.CourseId == id);
+            if (list == null)
+            {
+                return NotFound();
+            }
+            return Ok(new { list });
+        }
+
+        [HttpGet("{id}/Tracks")]
+        public async Task<ActionResult<List<Track>>> Tracks(int id)
+        {
+            var list = await trackService.GetList(x => x.CourseId == id);
+            if (list == null)
+            {
+                return NotFound();
+            }
+            return Ok(new { list });
+        }
+
+        [HttpGet("{id}/ExamQuestions")]
+        public async Task<ActionResult<List<Track>>> ExamQuestions(int id)
+        {
+            var list = await examQuestionService.GetList(x => x.CourseId == id && x.IsDeleted == false); 
+            if (list == null)
+            {
+                return NotFound();
+            }
+            return Ok(list);
+        }
+
+
         [HttpPost]
         public async Task<ActionResult<CourseDTO>> Post([FromBody] CourseDTO courseDTO)
         {
             var course = mapper.Map<Course>(courseDTO);
             course = await courseService.Insert(course);
             courseDTO = mapper.Map<CourseDTO>(course);
-            return Ok(new { courseDTO });
+            return Ok(courseDTO);
         }
 
-        // PUT api/<CourseController>/5
         [HttpPut("{id}")]
         public async Task<ActionResult<CourseDTO>> Put(int id, [FromBody] CourseDTO courseDTO)
         {
@@ -91,19 +140,26 @@ namespace AcademyProject.Controllers
             }
             course.LecturerId = courseDTO.LecturerId;
             course.CategoryId = courseDTO.CategoryId;
+            course.PictureId = (courseDTO.PictureId != null) ? courseDTO.PictureId : course.PictureId;
             course.Title = courseDTO.Title;
+            course.Description = courseDTO.Description;
             course = await courseService.Update(course);
 
             courseDTO = mapper.Map<CourseDTO>(course);
 
-            return Ok(new { courseDTO });
+            return Ok(courseDTO);
         }
 
-        // DELETE api/<CourseController>/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await courseService.Delete(id);
+            var course = await courseService.GetById(id);
+            if (course == null)
+            {
+                return NotFound();
+            }
+            course.IsDeleted = true;
+            await courseService.Update(course);
             return Ok();
         }
     }

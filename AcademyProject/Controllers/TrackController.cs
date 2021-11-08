@@ -8,31 +8,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace AcademyProject.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class TrackController : ControllerBase
     {
-        private readonly IGenericService<Track> trackService;
         private readonly IMapper mapper;
-        public TrackController(IGenericService<Track> trackService, IMapper mapper)
+        private readonly IGenericService<Track> trackService;
+        private readonly IGenericService<Step> stepService;
+        public TrackController(IMapper mapper, IGenericService<Track> trackService, IGenericService<Step> stepService)
         {
-            this.trackService = trackService;
             this.mapper = mapper;
+            this.trackService = trackService;
+            this.stepService = stepService;
         }
-        // GET: api/<TrackController>
+
         [HttpGet]
-        public async Task<ActionResult<TrackDTO>> Get()
+        public async Task<ActionResult<List<TrackDTO>>> Get()
         {
             var list = await trackService.GetAll();
             var listTrack = list.Select(x => mapper.Map<TrackDTO>(x)).ToList();
-            return Ok(new { listTrack });
+            return Ok(listTrack);
         }
 
-        // GET api/<TrackController>/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TrackDTO>> Get(int id)
         {
@@ -42,20 +41,29 @@ namespace AcademyProject.Controllers
                 return NotFound();
             }
             var trackDTO = mapper.Map<TrackDTO>(track);
-            return Ok(new { trackDTO });
+            return Ok(trackDTO);
         }
 
-        // POST api/<TrackController>
+        [HttpGet("{id}/TrackSteps")]
+        public async Task<ActionResult<List<StepDTO>>> TrackSteps(int id)
+        {
+            var list = await stepService.GetList(x => x.TrackId == id);
+            if (list == null)
+            {
+                return NotFound();
+            }
+            return Ok(new { list });
+        }
+
         [HttpPost]
         public async Task<ActionResult<TrackDTO>> Post([FromBody] TrackDTO trackDTO)
         {
             var track = mapper.Map<Track>(trackDTO);
             track = await trackService.Insert(track);
             trackDTO = mapper.Map<TrackDTO>(track);
-            return Ok(new { track });
+            return Ok(trackDTO);
         }
 
-        // PUT api/<TrackController>/5
         [HttpPut("{id}")]
         public async Task<ActionResult<TrackDTO>> Put(int id, [FromBody] TrackDTO trackDTO)
         {
@@ -70,14 +78,19 @@ namespace AcademyProject.Controllers
 
             trackDTO = mapper.Map<TrackDTO>(track);
 
-            return Ok(new { trackDTO });
+            return Ok(trackDTO);
         }
 
-        // DELETE api/<TrackController>/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await trackService.Delete(id);
+            var track = await trackService.GetById(id);
+            if (track == null)
+            {
+                return NotFound();
+            }
+            track.IsDeleted = true;
+            await trackService.Update(track);
             return Ok();
         }
     }

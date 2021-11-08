@@ -8,31 +8,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace AcademyProject.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class RequirementController : ControllerBase
     {
-        private readonly IGenericService<Requirement> requirementrService;
         private readonly IMapper mapper;
-        public RequirementController(IGenericService<Requirement> requirementrService, IMapper mapper)
+        private readonly IGenericService<Requirement> requirementrService;
+        public RequirementController(IMapper mapper, IGenericService<Requirement> requirementrService)
         {
-            this.requirementrService = requirementrService;
             this.mapper = mapper;
+            this.requirementrService = requirementrService;
         }
-        // GET: api/<RequirementController>
+
         [HttpGet]
-        public async Task<ActionResult<RequirementDTO>> Get()
+        public async Task<ActionResult<List<RequirementDTO>>> Get()
         {
             var list = await requirementrService.GetAll();
             var listRequirement = list.Select(x => mapper.Map<RequirementDTO>(x)).ToList();
-            return Ok(new { listRequirement });
+            return Ok(listRequirement);
         }
 
-        // GET api/<RequirementController>/5
         [HttpGet("{id}")]
         public async Task<ActionResult<RequirementDTO>> Get(int id)
         {
@@ -42,20 +39,18 @@ namespace AcademyProject.Controllers
                 return NotFound();
             }
             var requirementDTO = mapper.Map<AnswerDTO>(requirement);
-            return Ok(new { requirementDTO });
+            return Ok(requirementDTO);
         }
 
-        // POST api/<RequirementController>
         [HttpPost]
         public async Task<ActionResult<RequirementDTO>> Post([FromBody] RequirementDTO requirementDTO)
         {
             var requirement = mapper.Map<Requirement>(requirementDTO);
             requirement = await requirementrService.Insert(requirement);
             requirementDTO = mapper.Map<RequirementDTO>(requirement);
-            return Ok(new { requirement });
+            return Ok(requirementDTO);
         }
 
-        // PUT api/<RequirementController>/5
         [HttpPut("{id}")]
         public async Task<ActionResult<RequirementDTO>> Put(int id, [FromBody] RequirementDTO requirementDTO)
         {
@@ -70,10 +65,9 @@ namespace AcademyProject.Controllers
 
             requirementDTO = mapper.Map<RequirementDTO>(requirement);
 
-            return Ok(new { requirementDTO });
+            return Ok(requirementDTO);
         }
 
-        // DELETE api/<RequirementController>/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

@@ -27,8 +27,7 @@ namespace AcademyProject.Repositories.Implements
         public async Task Delete(object id)
         {
             TEntity entityToDelete = dbSet.Find(id);
-            _ = Delete(entityToDelete);
-            await context.SaveChangesAsync();
+            await Delete(entityToDelete);
         }
 
         public async Task Delete(TEntity entityToDelete)

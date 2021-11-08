@@ -17,6 +17,7 @@ namespace AcademyProject.DTOs
         [Required(ErrorMessage = "The title is required")]
         public string Title { get; set; }
         public string Description { get; set; }
+        [SwaggerSchema(ReadOnly = true)]
         public bool IsDeleted { get; set; }
         [SwaggerSchema(ReadOnly = true)]
         public string PicturePath { get; set; }

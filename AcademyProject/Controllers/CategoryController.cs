@@ -16,23 +16,22 @@ namespace AcademyProject.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly IGenericService<Category> categoryService;
         private readonly IMapper mapper;
-        public CategoryController(IGenericService<Category> categoryService, IMapper mapper)
+        private readonly IGenericService<Category> categoryService;
+        public CategoryController(IMapper mapper, IGenericService<Category> categoryService)
         {
-            this.categoryService = categoryService;
             this.mapper = mapper;
+            this.categoryService = categoryService;
         }
-        // GET: api/<CategoryController>
+
         [HttpGet]
         public async Task<ActionResult<CategoryDTO>> Get()
         {
-            var list = await categoryService.GetAll();
-            var listCategory = list.Select(x => mapper.Map<CategoryDTO>(x)).ToList();
-            return Ok(new { listCategory });
+            var list = await categoryService.GetList(x => x.IsDeleted == false);
+            var categories = list.Select(x => mapper.Map<CategoryDTO>(x)).ToList();
+            return Ok(new { categories });
         }
 
-        // GET api/<CategoryController>/5
         [HttpGet("{id}")]
         public async Task<ActionResult<CategoryDTO>> Get(int id)
         {
@@ -42,10 +41,9 @@ namespace AcademyProject.Controllers
                 return NotFound();
             }
             var categoryDTO = mapper.Map<CategoryDTO>(category);
-            return Ok(new { categoryDTO });
+            return Ok(categoryDTO);
         }
 
-        // POST api/<CategoryController>
         [HttpPost]
         public async Task<ActionResult<CategoryDTO>> Post([FromBody] CategoryDTO categoryDTO)
         {

@@ -10,6 +10,7 @@ namespace AcademyProject.Models
         public User()
         {
             Answers = new HashSet<Answer>();
+            Attendances = new HashSet<Attendance>();
             BlogComments = new HashSet<BlogComment>();
             Blogs = new HashSet<Blog>();
             Courses = new HashSet<Course>();
@@ -27,6 +28,7 @@ namespace AcademyProject.Models
 
         public virtual Picture Picture { get; set; }
         public virtual ICollection<Answer> Answers { get; set; }
+        public virtual ICollection<Attendance> Attendances { get; set; }
         public virtual ICollection<BlogComment> BlogComments { get; set; }
         public virtual ICollection<Blog> Blogs { get; set; }
         public virtual ICollection<Course> Courses { get; set; }

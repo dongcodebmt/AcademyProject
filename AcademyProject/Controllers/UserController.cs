@@ -56,18 +56,14 @@ namespace AcademyProject.Controllers
 
             //Detect is local images or other host
             string pictureUrl = picture.PicturePath;
-            if (pictureUrl.Substring(0, 1) == "/")
+            if (pictureUrl != "/" && pictureUrl.Substring(0, 1) == "/")
             {
                 pictureUrl = configuration["ServerHostName"] + picture.PicturePath;
             }
-            User2DTO eUser = new User2DTO();
-            eUser.Id = user.Id;
-            eUser.Email = user.Email;
-            eUser.FirstName = user.FirstName;
-            eUser.LastName = user.LastName;
-            eUser.Picture = pictureUrl;
+            User2DTO user2DTO = mapper.Map<User2DTO>(user);
+            user2DTO.Picture = pictureUrl;
 
-            return Ok(eUser);
+            return Ok(user2DTO);
         }
 
         [HttpPost]
@@ -88,13 +84,9 @@ namespace AcademyProject.Controllers
             var newUser = mapper.Map<User>(userDTO);
             newUser = await userService.Insert(newUser);
 
-            User2DTO eUser = new User2DTO();
-            eUser.Id = newUser.Id;
-            eUser.Email = newUser.Email;
-            eUser.FirstName = newUser.FirstName;
-            eUser.LastName = newUser.LastName;
+            User2DTO user2DTO = mapper.Map<User2DTO>(newUser);
 
-            return Ok(eUser);
+            return Ok(user2DTO);
         }
 
         [HttpPost]
@@ -137,7 +129,8 @@ namespace AcademyProject.Controllers
             user.LastName = userDTO.LastName;
             user.Email = userDTO.Email;
             user = await userService.Update(user);
-            return Ok(user);
+            userDTO = mapper.Map<User2DTO>(user);
+            return Ok(userDTO);
         }
     }
 }

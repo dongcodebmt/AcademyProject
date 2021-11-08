@@ -9,6 +9,8 @@ namespace AcademyProject.Models
     {
         public Course()
         {
+            Attendances = new HashSet<Attendance>();
+            ExamQuestions = new HashSet<ExamQuestion>();
             Requirements = new HashSet<Requirement>();
             Tracks = new HashSet<Track>();
             WillLearns = new HashSet<WillLearn>();
@@ -26,6 +28,8 @@ namespace AcademyProject.Models
         public virtual Category Category { get; set; }
         public virtual User Lecturer { get; set; }
         public virtual Picture Picture { get; set; }
+        public virtual ICollection<Attendance> Attendances { get; set; }
+        public virtual ICollection<ExamQuestion> ExamQuestions { get; set; }
         public virtual ICollection<Requirement> Requirements { get; set; }
         public virtual ICollection<Track> Tracks { get; set; }
         public virtual ICollection<WillLearn> WillLearns { get; set; }

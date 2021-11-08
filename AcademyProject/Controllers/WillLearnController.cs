@@ -8,31 +8,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace AcademyProject.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class WillLearnController : ControllerBase
     {
-        private readonly IGenericService<WillLearn> willLearnService;
         private readonly IMapper mapper;
-        public WillLearnController(IGenericService<WillLearn> willLearnService, IMapper mapper)
+        private readonly IGenericService<WillLearn> willLearnService;
+        public WillLearnController(IMapper mapper, IGenericService<WillLearn> willLearnService)
         {
-            this.willLearnService = willLearnService;
             this.mapper = mapper;
+            this.willLearnService = willLearnService;
         }
-        // GET: api/<WillLearnController>
+
         [HttpGet]
-        public async Task<ActionResult<WillLearnDTO>> Get()
+        public async Task<ActionResult<List<WillLearnDTO>>> Get()
         {
             var list = await willLearnService.GetAll();
             var listWillLearn = list.Select(x => mapper.Map<WillLearnDTO>(x)).ToList();
-            return Ok(new { listWillLearn });
+            return Ok(listWillLearn);
         }
 
-        // GET api/<WillLearnController>/5
         [HttpGet("{id}")]
         public async Task<ActionResult<WillLearnDTO>> Get(int id)
         {
@@ -42,20 +39,18 @@ namespace AcademyProject.Controllers
                 return NotFound();
             }
             var willLearnDTO = mapper.Map<WillLearnDTO>(willLearn);
-            return Ok(new { willLearnDTO });
+            return Ok(willLearnDTO);
         }
 
-        // POST api/<WillLearnController>
         [HttpPost]
         public async Task<ActionResult<WillLearnDTO>> Post([FromBody] WillLearnDTO willLearnDTO)
         {
             var willLearn = mapper.Map<WillLearn>(willLearnDTO);
             willLearn = await willLearnService.Insert(willLearn);
             willLearnDTO = mapper.Map<WillLearnDTO>(willLearn);
-            return Ok(new { willLearn });
+            return Ok(willLearnDTO);
         }
 
-        // PUT api/<WillLearnController>/5
         [HttpPut("{id}")]
         public async Task<ActionResult<WillLearnDTO>> Put(int id, [FromBody] WillLearnDTO willLearnDTO)
         {
@@ -71,10 +66,9 @@ namespace AcademyProject.Controllers
 
             willLearnDTO = mapper.Map<WillLearnDTO>(willLearn);
 
-            return Ok(new { willLearnDTO });
+            return Ok(willLearnDTO);
         }
 
-        // DELETE api/<WillLearnController>/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
