@@ -21,10 +21,11 @@ namespace AcademyProject.Controllers
         private readonly IGenericService<WillLearn> willLearnService;
         private readonly IGenericService<Requirement> requirementService;
         private readonly IGenericService<Track> trackService;
+        private readonly IGenericService<Step> stepService;
         private readonly IGenericService<ExamQuestion> examQuestionService;
         public CourseController(IMapper mapper, IConfiguration configuration, IGenericService<Course> courseService, IGenericService<Picture> pictureService,
             IGenericService<WillLearn> willLearnService, IGenericService<Requirement> requirementService, IGenericService<Track> trackService,
-            IGenericService<ExamQuestion> examQuestionService)
+            IGenericService<ExamQuestion> examQuestionService, IGenericService<Step> stepService)
         {
             this.configuration = configuration;
             this.mapper = mapper;
@@ -34,6 +35,7 @@ namespace AcademyProject.Controllers
             this.requirementService = requirementService;
             this.trackService = trackService;
             this.examQuestionService = examQuestionService;
+            this.stepService = stepService;
         }
 
         [HttpGet]
@@ -65,7 +67,7 @@ namespace AcademyProject.Controllers
             }
             var courseDTO = mapper.Map<CourseDTO>(course);
             var picture = await pictureService.GetById((int)courseDTO.PictureId);
-            if (picture.PicturePath.Substring(0, 1) == "/")
+            if (picture.PicturePath != "/" && picture.PicturePath.Substring(0, 1) == "/")
             {
                 courseDTO.PicturePath = configuration["ServerHostName"] + picture.PicturePath;
             }
@@ -84,7 +86,8 @@ namespace AcademyProject.Controllers
             {
                 return NotFound();
             }
-            return Ok(new { list });
+            var willLearns = list.Select(x => mapper.Map<WillLearnDTO>(x)).ToList();
+            return Ok(willLearns);
         }
 
         [HttpGet("{id}/Requirements")]
@@ -95,29 +98,49 @@ namespace AcademyProject.Controllers
             {
                 return NotFound();
             }
-            return Ok(new { list });
+            var requirements = list.Select(x => mapper.Map<RequirementDTO>(x)).ToList();
+            return Ok(requirements);
         }
 
         [HttpGet("{id}/Tracks")]
-        public async Task<ActionResult<List<Track>>> Tracks(int id)
+        public async Task<ActionResult<List<TrackDTO>>> Tracks(int id)
         {
             var list = await trackService.GetList(x => x.CourseId == id);
             if (list == null)
             {
                 return NotFound();
             }
-            return Ok(new { list });
+            var tracks = list.Select(x => mapper.Map<TrackDTO>(x)).ToList();
+            return Ok(tracks);
         }
 
         [HttpGet("{id}/ExamQuestions")]
-        public async Task<ActionResult<List<Track>>> ExamQuestions(int id)
+        public async Task<ActionResult<List<ExamQuestionDTO>>> ExamQuestions(int id)
         {
             var list = await examQuestionService.GetList(x => x.CourseId == id && x.IsDeleted == false); 
             if (list == null)
             {
                 return NotFound();
             }
-            return Ok(list);
+            var examQuestions = list.Select(x => mapper.Map<ExamQuestionDTO>(x)).ToList();
+            return Ok(examQuestions);
+        }
+
+        [HttpGet("{id}/TrackSteps")]
+        public async Task<ActionResult<List<TrackStepDTO>>> TrackSteps(int id)
+        {
+            var list = await trackService.GetList(x => x.CourseId == id);
+            if (list == null)
+            {
+                return NotFound();
+            }
+            var trackSteps = list.Select(x => mapper.Map<TrackStepDTO>(x)).ToList();
+            foreach(var item in trackSteps)
+            {
+                var steps = await stepService.GetList(x => x.TrackId == item.Id);
+                item.Steps = steps.Select(x => mapper.Map<StepWithoutContentDTO>(x)).ToList();
+            }
+            return Ok(trackSteps);
         }
 
 

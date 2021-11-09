@@ -67,6 +67,10 @@ namespace AcademyProject.DTOs
 
             CreateMap<ExamDetailDTO, ExamDetail>();
             CreateMap<ExamDetail, ExamDetailDTO>();
+
+            //Track steps
+            CreateMap<Track, TrackStepDTO>();
+            CreateMap<Step, StepWithoutContentDTO>();
         }
     }
 }
