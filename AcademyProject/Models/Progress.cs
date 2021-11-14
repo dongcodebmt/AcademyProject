@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 namespace AcademyProject.Models
 {
-    public partial class Attendance
+    public partial class Progress
     {
-        public int CourseId { get; set; }
+        public int StepId { get; set; }
         public int UserId { get; set; }
-        public int Credits { get; set; }
+        public DateTime StartedAt { get; set; }
 
-        public virtual Course Course { get; set; }
+        public virtual Step Step { get; set; }
         public virtual User User { get; set; }
     }
 }

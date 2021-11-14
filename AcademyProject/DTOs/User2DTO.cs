@@ -1,4 +1,5 @@
 ﻿using Swashbuckle.AspNetCore.Annotations;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace AcademyProject.DTOs
@@ -13,7 +14,10 @@ namespace AcademyProject.DTOs
         public string FirstName { get; set; }
         [Required(ErrorMessage = "The last name is required")]
         public string LastName { get; set; }
+        public int? PictureId { get; set; }
         [SwaggerSchema(ReadOnly = true)]
         public string Picture { get; set; }
+        [SwaggerSchema(ReadOnly = true)]
+        public List<string> Scope { get; set; }
     }
 }

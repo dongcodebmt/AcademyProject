@@ -9,10 +9,11 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace AcademyProject.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -20,13 +21,18 @@ namespace AcademyProject.Controllers
         private readonly IMapper mapper;
         private readonly IGenericService<User> userService;
         private readonly IGenericService<Picture> pictureService;
+        private readonly IGenericService<UserRole> userRoleService;
+        private readonly IGenericService<Role> roleService;
 
-        public UserController(IMapper mapper, IConfiguration configuration, IGenericService<User> userService, IGenericService<Picture> pictureService)
+        public UserController(IMapper mapper, IConfiguration configuration, IGenericService<User> userService, 
+            IGenericService<Picture> pictureService, IGenericService<UserRole> userRoleService, IGenericService<Role> roleService)
         {
             this.mapper = mapper;
             this.configuration = configuration;
             this.userService = userService;
             this.pictureService = pictureService;
+            this.userRoleService = userRoleService;
+            this.roleService = roleService;
         }
 
         protected int GetCurrentUserId()
@@ -36,7 +42,40 @@ namespace AcademyProject.Controllers
             return id;
         }
 
-        [HttpGet]
+        [HttpGet("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<User2DTO>> Get(int id)
+        {
+            //Get user
+            var user = await userService.Get(u => u.Id == id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var picture = await pictureService.Get(i => i.Id == user.PictureId);
+
+            //Detect is local images or other host
+            string pictureUrl = picture.PicturePath;
+            if (pictureUrl != "/" && pictureUrl.Substring(0, 1) == "/")
+            {
+                pictureUrl = configuration["ServerHostName"] + picture.PicturePath;
+            }
+            User2DTO user2DTO = mapper.Map<User2DTO>(user);
+            user2DTO.Picture = pictureUrl;
+            //Get role
+            var userRoles = await userRoleService.GetList(x => x.UserId == id);
+            List<string> scope = new List<string>();
+            foreach (var i in userRoles)
+            {
+                var role = await roleService.GetById(i.RoleId);
+                scope.Add(role.Name);
+            }
+            user2DTO.Scope = scope;
+
+            return Ok(user2DTO);
+        }
+
+        [HttpGet("[action]")]
         [Authorize]
         public async Task<ActionResult<User2DTO>> Me()
         {
@@ -62,11 +101,20 @@ namespace AcademyProject.Controllers
             }
             User2DTO user2DTO = mapper.Map<User2DTO>(user);
             user2DTO.Picture = pictureUrl;
+            //Get role
+            var userRoles = await userRoleService.GetList(x => x.UserId == userId);
+            List<string> scope = new List<string>();
+            foreach (var i in userRoles)
+            {
+                var role = await roleService.GetById(i.RoleId);
+                scope.Add(role.Name);
+            }
+            user2DTO.Scope = scope;
 
             return Ok(user2DTO);
         }
-
-        [HttpPost]
+        
+        [HttpPost("[action]")]
         public async Task<ActionResult<User2DTO>> Register([FromBody] UserDTO userDTO)
         {
             var user = await userService.Get(u => u.Email == userDTO.Email);
@@ -89,7 +137,7 @@ namespace AcademyProject.Controllers
             return Ok(user2DTO);
         }
 
-        [HttpPost]
+        [HttpPost("[action]")]
         [Authorize]
         public async Task<IActionResult> Password([FromBody] Password password)
         {
@@ -114,7 +162,7 @@ namespace AcademyProject.Controllers
             return Ok();
         }
 
-        [HttpPut]
+        [HttpPut("[action]")]
         [Authorize]
         public async Task<ActionResult<User2DTO>> Infomation([FromBody] User2DTO userDTO)
         {
@@ -131,6 +179,35 @@ namespace AcademyProject.Controllers
             user = await userService.Update(user);
             userDTO = mapper.Map<User2DTO>(user);
             return Ok(userDTO);
+        }
+
+        [HttpGet("[action]")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<List<User2DTO>>> GetAll()
+        {
+            var list = await userService.GetAll();
+            var users = list.Select(x => mapper.Map<User2DTO>(x)).ToList();
+            foreach (var item in users)
+            {
+                //Get picture
+                var picture = await pictureService.Get(i => i.Id == item.PictureId);
+                string pictureUrl = picture.PicturePath;
+                if (pictureUrl != "/" && pictureUrl.Substring(0, 1) == "/")
+                {
+                    pictureUrl = configuration["ServerHostName"] + picture.PicturePath;
+                }
+                item.Picture = pictureUrl;
+                //Get role
+                var userRoles = await userRoleService.GetList(x => x.UserId == item.Id);
+                List<string> scope = new List<string>();
+                foreach (var i in userRoles)
+                {
+                    var role = await roleService.GetById(i.RoleId);
+                    scope.Add(role.Name);
+                }
+                item.Scope = scope;
+            }
+            return Ok(users);
         }
     }
 }

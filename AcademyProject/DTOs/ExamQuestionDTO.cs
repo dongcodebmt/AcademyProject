@@ -7,8 +7,8 @@ namespace AcademyProject.DTOs
     {
         [SwaggerSchema(ReadOnly = true)]
         public int? Id { get; set; }
-        [Required(ErrorMessage = "The course id is required")]
-        public int CourseId { get; set; }
+        [Required(ErrorMessage = "The exam id is required")]
+        public int ExamId { get; set; }
         [Required(ErrorMessage = "The content is required")]
         public string Content { get; set; }
         [SwaggerSchema(ReadOnly = true)]

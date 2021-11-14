@@ -1,15 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using Swashbuckle.AspNetCore.Annotations;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace AcademyProject.DTOs
 {
     public class ExamDTO
     {
-        [Required(ErrorMessage = "The question is required")]
-        public ExamQuestionDTO Question { get; set; }
-        [Required(ErrorMessage = "The options is required")]
-        public List<ExamOptionDTO> Options { get; set; }
-        [Required(ErrorMessage = "The right option is required")]
-        public ExamRightOptionDTO RightOption { get; set; }
+        [SwaggerSchema(ReadOnly = true)]
+        public int Id { get; set; }
+        [Required(ErrorMessage = "The course id is required")]
+        public int CourseId { get; set; }
+        [Required(ErrorMessage = "The title id is required")]
+        public string Title { get; set; }
+        public int ExamDuration { get; set; }
+        [SwaggerSchema(ReadOnly = true)]
+        public bool IsDeleted { get; set; }
     }
 }

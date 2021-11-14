@@ -44,10 +44,10 @@ namespace AcademyProject.Controllers
             return Ok(trackDTO);
         }
 
-        [HttpGet("{id}/Steps")]
+        [HttpGet("{id}/[action]")]
         public async Task<ActionResult<List<StepDTO>>> Steps(int id)
         {
-            var list = await stepService.GetList(x => x.TrackId == id);
+            var list = await stepService.GetList(x => x.TrackId == id && x.IsDeleted == false);
             if (list == null)
             {
                 return NotFound();

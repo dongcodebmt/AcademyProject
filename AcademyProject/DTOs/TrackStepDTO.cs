@@ -24,5 +24,6 @@ namespace AcademyProject.DTOs
         public int TrackId { get; set; }
         public string Title { get; set; }
         public int Duration { get; set; }
+        public bool Completed { get; set; }
     }
 }

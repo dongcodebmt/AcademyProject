@@ -2,13 +2,11 @@
 using AcademyProject.Models;
 using AcademyProject.Services;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace AcademyProject.Controllers
 {
@@ -18,12 +16,21 @@ namespace AcademyProject.Controllers
     {
         private readonly IMapper mapper;
         private readonly IGenericService<Step> stepService;
-        public StepController(IMapper mapper, IGenericService<Step> stepService)
+        private readonly IGenericService<Progress> progressService;
+        public StepController(IMapper mapper, IGenericService<Step> stepService, IGenericService<Progress> progressService)
         {
             this.mapper = mapper;
             this.stepService = stepService;
+            this.progressService = progressService;
         }
-        // GET: api/<TrackStepController>
+
+        protected int GetCurrentUserId()
+        {
+            string userId = User.Claims.Where(x => x.Type == "Id").FirstOrDefault()?.Value;
+            int id = Convert.ToInt32(userId);
+            return id;
+        }
+
         [HttpGet]
         public async Task<ActionResult<StepDTO>> Get()
         {
@@ -32,7 +39,6 @@ namespace AcademyProject.Controllers
             return Ok(stepDTOs);
         }
 
-        // GET api/<TrackStepController>/5
         [HttpGet("{id}")]
         public async Task<ActionResult<StepDTO>> Get(int id)
         {
@@ -45,7 +51,6 @@ namespace AcademyProject.Controllers
             return Ok(stepDTO);
         }
 
-        // POST api/<TrackStepController>
         [HttpPost]
         public async Task<ActionResult<StepDTO>> Post([FromBody] StepDTO stepDTO)
         {
@@ -55,7 +60,28 @@ namespace AcademyProject.Controllers
             return Ok(stepDTO);
         }
 
-        // PUT api/<TrackStepController>/5
+        [Authorize]
+        [HttpPost("{id}/[action]")]
+        public async Task<ActionResult<bool>> Progress(int id)
+        {
+            var step = await stepService.GetById(id);
+            if (step == null)
+            {
+                return NotFound();
+            }
+            int userId = GetCurrentUserId();
+            var progress = await progressService.Get(x => x.UserId == userId && x.StepId == id);
+            if (progress != null)
+            {
+                return Ok(false);
+            }
+            Progress p = new Progress();
+            p.UserId = userId;
+            p.StepId = step.Id;
+            await progressService.Insert(p);
+            return Ok(true);
+        }
+
         [HttpPut("{id}")]
         public async Task<ActionResult<StepDTO>> Put(int id, [FromBody] StepDTO stepDTO)
         {
@@ -76,11 +102,16 @@ namespace AcademyProject.Controllers
             return Ok(stepDTO);
         }
 
-        // DELETE api/<TrackStepController>/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await stepService.Delete(id);
+            var step = await stepService.GetById(id);
+            if (step == null)
+            {
+                return NotFound();
+            }
+            step.IsDeleted = true;
+            await stepService.Update(step);
             return Ok();
         }
     }

@@ -18,13 +18,16 @@ namespace AcademyProject.Models
         public virtual DbSet<Blog> Blogs { get; set; }
         public virtual DbSet<BlogComment> BlogComments { get; set; }
         public virtual DbSet<Category> Categories { get; set; }
+        public virtual DbSet<Certification> Certifications { get; set; }
         public virtual DbSet<Course> Courses { get; set; }
+        public virtual DbSet<Exam> Exams { get; set; }
         public virtual DbSet<ExamDetail> ExamDetails { get; set; }
         public virtual DbSet<ExamOption> ExamOptions { get; set; }
         public virtual DbSet<ExamQuestion> ExamQuestions { get; set; }
         public virtual DbSet<ExamRightOption> ExamRightOptions { get; set; }
         public virtual DbSet<ExamUser> ExamUsers { get; set; }
         public virtual DbSet<Picture> Pictures { get; set; }
+        public virtual DbSet<Progress> Progresses { get; set; }
         public virtual DbSet<Question> Questions { get; set; }
         public virtual DbSet<Requirement> Requirements { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
@@ -44,7 +47,11 @@ namespace AcademyProject.Models
                     .IsRequired()
                     .HasMaxLength(2048);
 
-                entity.Property(e => e.CreateAt)
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.UpdatedAt)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
 
@@ -52,19 +59,19 @@ namespace AcademyProject.Models
                     .WithMany(p => p.Answers)
                     .HasForeignKey(d => d.QuestionId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Answers__Questio__70DDC3D8");
+                    .HasConstraintName("FK__Answers__Questio__09A971A2");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Answers)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Answers__UserId__71D1E811");
+                    .HasConstraintName("FK__Answers__UserId__0A9D95DB");
             });
 
             modelBuilder.Entity<Attendance>(entity =>
             {
                 entity.HasKey(e => new { e.CourseId, e.UserId })
-                    .HasName("PK__Attendan__1855FD634184A88A");
+                    .HasName("PK__Attendan__1855FD6315C88BA8");
 
                 entity.ToTable("Attendance");
 
@@ -72,20 +79,20 @@ namespace AcademyProject.Models
                     .WithMany(p => p.Attendances)
                     .HasForeignKey(d => d.CourseId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Attendanc__Cours__46E78A0C");
+                    .HasConstraintName("FK__Attendanc__Cours__3E52440B");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Attendances)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Attendanc__UserI__47DBAE45");
+                    .HasConstraintName("FK__Attendanc__UserI__3F466844");
             });
 
             modelBuilder.Entity<Blog>(entity =>
             {
                 entity.Property(e => e.Content).IsRequired();
 
-                entity.Property(e => e.CreateAt)
+                entity.Property(e => e.CreatedAt)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
 
@@ -95,22 +102,26 @@ namespace AcademyProject.Models
                     .IsRequired()
                     .HasMaxLength(255);
 
+                entity.Property(e => e.UpdatedAt)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
                 entity.HasOne(d => d.Category)
                     .WithMany(p => p.Blogs)
                     .HasForeignKey(d => d.CategoryId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Blogs__CategoryI__628FA481");
+                    .HasConstraintName("FK__Blogs__CategoryI__787EE5A0");
 
                 entity.HasOne(d => d.Picture)
                     .WithMany(p => p.Blogs)
                     .HasForeignKey(d => d.PictureId)
-                    .HasConstraintName("FK__Blogs__PictureId__60A75C0F");
+                    .HasConstraintName("FK__Blogs__PictureId__76969D2E");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Blogs)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Blogs__UserId__619B8048");
+                    .HasConstraintName("FK__Blogs__UserId__778AC167");
             });
 
             modelBuilder.Entity<BlogComment>(entity =>
@@ -119,7 +130,11 @@ namespace AcademyProject.Models
                     .IsRequired()
                     .HasMaxLength(2048);
 
-                entity.Property(e => e.CreateAt)
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.UpdatedAt)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
 
@@ -127,13 +142,13 @@ namespace AcademyProject.Models
                     .WithMany(p => p.BlogComments)
                     .HasForeignKey(d => d.BlogId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__BlogComme__BlogI__66603565");
+                    .HasConstraintName("FK__BlogComme__BlogI__7D439ABD");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.BlogComments)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__BlogComme__UserI__6754599E");
+                    .HasConstraintName("FK__BlogComme__UserI__7E37BEF6");
             });
 
             modelBuilder.Entity<Category>(entity =>
@@ -145,9 +160,24 @@ namespace AcademyProject.Models
                     .HasMaxLength(255);
             });
 
+            modelBuilder.Entity<Certification>(entity =>
+            {
+                entity.HasOne(d => d.Course)
+                    .WithMany(p => p.Certifications)
+                    .HasForeignKey(d => d.CourseId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__Certifica__Cours__6FE99F9F");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.Certifications)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__Certifica__UserI__6EF57B66");
+            });
+
             modelBuilder.Entity<Course>(entity =>
             {
-                entity.Property(e => e.CreateAt)
+                entity.Property(e => e.CreatedAt)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
 
@@ -161,43 +191,61 @@ namespace AcademyProject.Models
                     .IsRequired()
                     .HasMaxLength(255);
 
+                entity.Property(e => e.UpdatedAt)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
                 entity.HasOne(d => d.Category)
                     .WithMany(p => p.Courses)
                     .HasForeignKey(d => d.CategoryId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Courses__Categor__37A5467C");
+                    .HasConstraintName("FK__Courses__Categor__3A81B327");
 
                 entity.HasOne(d => d.Lecturer)
                     .WithMany(p => p.Courses)
                     .HasForeignKey(d => d.LecturerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Courses__Lecture__36B12243");
+                    .HasConstraintName("FK__Courses__Lecture__398D8EEE");
 
                 entity.HasOne(d => d.Picture)
                     .WithMany(p => p.Courses)
                     .HasForeignKey(d => d.PictureId)
-                    .HasConstraintName("FK__Courses__Picture__35BCFE0A");
+                    .HasConstraintName("FK__Courses__Picture__38996AB5");
+            });
+
+            modelBuilder.Entity<Exam>(entity =>
+            {
+                entity.Property(e => e.ExamDuration).HasDefaultValueSql("((300))");
+
+                entity.Property(e => e.Title)
+                    .IsRequired()
+                    .HasMaxLength(255);
+
+                entity.HasOne(d => d.Course)
+                    .WithMany(p => p.Exams)
+                    .HasForeignKey(d => d.CourseId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__Exams__CourseId__571DF1D5");
             });
 
             modelBuilder.Entity<ExamDetail>(entity =>
             {
-                entity.HasOne(d => d.Exam)
+                entity.HasOne(d => d.ExamUser)
                     .WithMany(p => p.ExamDetails)
-                    .HasForeignKey(d => d.ExamId)
+                    .HasForeignKey(d => d.ExamUserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__ExamDetai__ExamI__59063A47");
+                    .HasConstraintName("FK__ExamDetai__ExamU__2A164134");
 
                 entity.HasOne(d => d.Option)
                     .WithMany(p => p.ExamDetails)
                     .HasForeignKey(d => d.OptionId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__ExamDetai__Optio__5AEE82B9");
+                    .HasConstraintName("FK__ExamDetai__Optio__2BFE89A6");
 
                 entity.HasOne(d => d.Question)
                     .WithMany(p => p.ExamDetails)
                     .HasForeignKey(d => d.QuestionId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__ExamDetai__Quest__59FA5E80");
+                    .HasConstraintName("FK__ExamDetai__Quest__2B0A656D");
             });
 
             modelBuilder.Entity<ExamOption>(entity =>
@@ -210,7 +258,7 @@ namespace AcademyProject.Models
                     .WithMany(p => p.ExamOptions)
                     .HasForeignKey(d => d.QuestionId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__ExamOptio__Quest__4E88ABD4");
+                    .HasConstraintName("FK__ExamOptio__Quest__5DCAEF64");
             });
 
             modelBuilder.Entity<ExamQuestion>(entity =>
@@ -219,17 +267,17 @@ namespace AcademyProject.Models
                     .IsRequired()
                     .HasMaxLength(2048);
 
-                entity.HasOne(d => d.Course)
+                entity.HasOne(d => d.Exam)
                     .WithMany(p => p.ExamQuestions)
-                    .HasForeignKey(d => d.CourseId)
+                    .HasForeignKey(d => d.ExamId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__ExamQuest__Cours__4BAC3F29");
+                    .HasConstraintName("FK__ExamQuest__ExamI__5AEE82B9");
             });
 
             modelBuilder.Entity<ExamRightOption>(entity =>
             {
                 entity.HasKey(e => e.QuestionId)
-                    .HasName("PK__ExamRigh__0DC06FAC84C72234");
+                    .HasName("PK__ExamRigh__0DC06FACF71434EA");
 
                 entity.Property(e => e.QuestionId).ValueGeneratedNever();
 
@@ -237,26 +285,34 @@ namespace AcademyProject.Models
                     .WithMany(p => p.ExamRightOptions)
                     .HasForeignKey(d => d.OptionId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__ExamRight__Optio__52593CB8");
+                    .HasConstraintName("FK__ExamRight__Optio__619B8048");
 
                 entity.HasOne(d => d.Question)
                     .WithOne(p => p.ExamRightOption)
                     .HasForeignKey<ExamRightOption>(d => d.QuestionId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__ExamRight__Quest__5165187F");
+                    .HasConstraintName("FK__ExamRight__Quest__60A75C0F");
             });
 
             modelBuilder.Entity<ExamUser>(entity =>
             {
-                entity.Property(e => e.DateOfExam)
+                entity.Property(e => e.CompletedAt).HasColumnType("datetime");
+
+                entity.Property(e => e.StartedAt)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
+
+                entity.HasOne(d => d.Exam)
+                    .WithMany(p => p.ExamUsers)
+                    .HasForeignKey(d => d.ExamId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__ExamUsers__ExamI__22751F6C");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.ExamUsers)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__ExamUsers__UserI__5629CD9C");
+                    .HasConstraintName("FK__ExamUsers__UserI__2180FB33");
             });
 
             modelBuilder.Entity<Picture>(entity =>
@@ -266,11 +322,33 @@ namespace AcademyProject.Models
                     .HasMaxLength(2048);
             });
 
+            modelBuilder.Entity<Progress>(entity =>
+            {
+                entity.HasKey(e => new { e.StepId, e.UserId })
+                    .HasName("PK__Progress__F54CBF934EDC1C39");
+
+                entity.Property(e => e.StartedAt)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.HasOne(d => d.Step)
+                    .WithMany(p => p.Progresses)
+                    .HasForeignKey(d => d.StepId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__Progresse__StepI__1332DBDC");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.Progresses)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__Progresse__UserI__14270015");
+            });
+
             modelBuilder.Entity<Question>(entity =>
             {
                 entity.Property(e => e.Content).IsRequired();
 
-                entity.Property(e => e.CreateAt)
+                entity.Property(e => e.CreatedAt)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
 
@@ -278,17 +356,21 @@ namespace AcademyProject.Models
                     .IsRequired()
                     .HasMaxLength(255);
 
+                entity.Property(e => e.UpdatedAt)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
                 entity.HasOne(d => d.Category)
                     .WithMany(p => p.Questions)
                     .HasForeignKey(d => d.CategoryId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Questions__Categ__6D0D32F4");
+                    .HasConstraintName("FK__Questions__Categ__04E4BC85");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Questions)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Questions__UserI__6C190EBB");
+                    .HasConstraintName("FK__Questions__UserI__03F0984C");
             });
 
             modelBuilder.Entity<Requirement>(entity =>
@@ -301,7 +383,7 @@ namespace AcademyProject.Models
                     .WithMany(p => p.Requirements)
                     .HasForeignKey(d => d.CourseId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Requireme__Cours__3D5E1FD2");
+                    .HasConstraintName("FK__Requireme__Cours__44FF419A");
             });
 
             modelBuilder.Entity<Role>(entity =>
@@ -323,7 +405,7 @@ namespace AcademyProject.Models
                     .WithMany(p => p.Steps)
                     .HasForeignKey(d => d.TrackId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Steps__TrackId__440B1D61");
+                    .HasConstraintName("FK__Steps__TrackId__4CA06362");
             });
 
             modelBuilder.Entity<Track>(entity =>
@@ -336,7 +418,7 @@ namespace AcademyProject.Models
                     .WithMany(p => p.Tracks)
                     .HasForeignKey(d => d.CourseId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Tracks__CourseId__412EB0B6");
+                    .HasConstraintName("FK__Tracks__CourseId__48CFD27E");
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -360,25 +442,25 @@ namespace AcademyProject.Models
                 entity.HasOne(d => d.Picture)
                     .WithMany(p => p.Users)
                     .HasForeignKey(d => d.PictureId)
-                    .HasConstraintName("FK__Users__PictureId__276EDEB3");
+                    .HasConstraintName("FK__Users__PictureId__286302EC");
             });
 
             modelBuilder.Entity<UserRole>(entity =>
             {
                 entity.HasKey(e => new { e.UserId, e.RoleId })
-                    .HasName("PK__UserRole__AF2760ADD705180F");
+                    .HasName("PK__UserRole__AF2760AD2B61E2DC");
 
                 entity.HasOne(d => d.Role)
                     .WithMany(p => p.UserRoles)
                     .HasForeignKey(d => d.RoleId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__UserRoles__RoleI__2D27B809");
+                    .HasConstraintName("FK__UserRoles__RoleI__2E1BDC42");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.UserRoles)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__UserRoles__UserI__2C3393D0");
+                    .HasConstraintName("FK__UserRoles__UserI__2D27B809");
             });
 
             modelBuilder.Entity<WillLearn>(entity =>
@@ -391,7 +473,7 @@ namespace AcademyProject.Models
                     .WithMany(p => p.WillLearns)
                     .HasForeignKey(d => d.CourseId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__WillLearn__Cours__3A81B327");
+                    .HasConstraintName("FK__WillLearn__Cours__4222D4EF");
             });
 
             OnModelCreatingPartial(modelBuilder);

@@ -17,7 +17,8 @@ namespace AcademyProject.Models
         public int CategoryId { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
-        public DateTime CreateAt { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
         public bool IsDeleted { get; set; }
 
         public virtual Category Category { get; set; }

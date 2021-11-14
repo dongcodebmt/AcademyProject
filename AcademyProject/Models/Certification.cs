@@ -5,11 +5,12 @@ using System.Collections.Generic;
 
 namespace AcademyProject.Models
 {
-    public partial class Attendance
+    public partial class Certification
     {
-        public int CourseId { get; set; }
+        public int Id { get; set; }
         public int UserId { get; set; }
-        public int Credits { get; set; }
+        public int CourseId { get; set; }
+        public int Result { get; set; }
 
         public virtual Course Course { get; set; }
         public virtual User User { get; set; }

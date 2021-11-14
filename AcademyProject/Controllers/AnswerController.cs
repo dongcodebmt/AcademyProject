@@ -67,7 +67,7 @@ namespace AcademyProject.Controllers
             answer.QuestionId = answerDTO.QuestionId;
             answer.UserId = answerDTO.UserId;
             answer.Content = answerDTO.Content;
-            answer.CreateAt = answerDTO.CreateAt;
+            answer.CreatedAt = answerDTO.CreatedAt;
             answer = await answerService.Update(answer);
 
             answerDTO = mapper.Map<AnswerDTO>(answer);

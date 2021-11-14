@@ -8,8 +8,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace AcademyProject.Controllers
 {
     [Route("api/[controller]")]
@@ -29,7 +27,7 @@ namespace AcademyProject.Controllers
         {
             var list = await categoryService.GetList(x => x.IsDeleted == false);
             var categories = list.Select(x => mapper.Map<CategoryDTO>(x)).ToList();
-            return Ok(new { categories });
+            return Ok(categories);
         }
 
         [HttpGet("{id}")]
@@ -50,10 +48,9 @@ namespace AcademyProject.Controllers
             var category = mapper.Map<Category>(categoryDTO);
             category = await categoryService.Insert(category);
             categoryDTO = mapper.Map<CategoryDTO>(category);
-            return Ok(new { category });
+            return Ok(categoryDTO);
         }
 
-        // PUT api/<CategoryController>/5
         [HttpPut("{id}")]
         public async Task<ActionResult<CategoryDTO>> Put(int id, [FromBody] CategoryDTO categoryDTO)
         {
@@ -67,14 +64,19 @@ namespace AcademyProject.Controllers
 
             categoryDTO = mapper.Map<CategoryDTO>(category);
 
-            return Ok(new { categoryDTO });
+            return Ok(categoryDTO);
         }
 
-        // DELETE api/<CategoryController>/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await categoryService.Delete(id);
+            var category = await categoryService.GetById(id);
+            if (category == null)
+            {
+                return NotFound();
+            }
+            category.IsDeleted = true;
+            await categoryService.Update(category);
             return Ok();
         }
     }

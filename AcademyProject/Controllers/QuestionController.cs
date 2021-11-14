@@ -68,7 +68,7 @@ namespace AcademyProject.Controllers
             question.UserId = questionDTO.UserId;
             question.Title = questionDTO.Title;
             question.Content = questionDTO.Content;
-            question.CreateAt = questionDTO.CreateAt;
+            question.CreatedAt = questionDTO.CreatedAt;
             question.IsDeleted = questionDTO.IsDeleted;
             question = await questionService.Update(question);
 

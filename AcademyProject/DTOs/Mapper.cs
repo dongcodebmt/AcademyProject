@@ -29,6 +29,9 @@ namespace AcademyProject.DTOs
             CreateMap<AnswerDTO, Answer>();
             CreateMap<Answer, AnswerDTO>();
 
+            CreateMap<BlogDTO, Blog>();
+            CreateMap<Blog, BlogDTO>();
+
             CreateMap<BlogCommentDTO, BlogComment>();
             CreateMap<BlogComment, BlogCommentDTO>();
 
@@ -52,6 +55,9 @@ namespace AcademyProject.DTOs
 
             CreateMap<WillLearnDTO, WillLearn>();
             CreateMap<WillLearn, WillLearnDTO>();
+
+            CreateMap<ExamDTO, Exam>();
+            CreateMap<Exam, ExamDTO>();
 
             CreateMap<ExamQuestionDTO, ExamQuestion>();
             CreateMap<ExamQuestion, ExamQuestionDTO>();

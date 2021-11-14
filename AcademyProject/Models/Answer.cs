@@ -11,7 +11,8 @@ namespace AcademyProject.Models
         public int QuestionId { get; set; }
         public int UserId { get; set; }
         public string Content { get; set; }
-        public DateTime CreateAt { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
 
         public virtual Question Question { get; set; }
         public virtual User User { get; set; }
