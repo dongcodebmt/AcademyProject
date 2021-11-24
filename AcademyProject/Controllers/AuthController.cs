@@ -85,6 +85,11 @@ namespace AcademyProject.Controllers
                 newUser.PictureId = picture.Id;
 
                 user = await userService.Insert(newUser);
+
+                UserRole userRole = new UserRole();
+                userRole.UserId = newUser.Id;
+                userRole.RoleId = 4;
+                await userRoleService.Insert(userRole);
             }
 
             var accessToken = await GetAccessToken(user.Id);
@@ -138,6 +143,11 @@ namespace AcademyProject.Controllers
                 newUser.PictureId = picture.Id;
 
                 user = await userService.Insert(newUser);
+
+                UserRole userRole = new UserRole();
+                userRole.UserId = newUser.Id;
+                userRole.RoleId = 4;
+                await userRoleService.Insert(userRole);
             }
 
             var accessToken = await GetAccessToken(user.Id);
