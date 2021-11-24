@@ -28,7 +28,13 @@ namespace AcademyProject.Controllers
         private readonly IGenericService<Role> roleService;
         private readonly IGenericService<Picture> pictureService;
 
-        public AuthController(IConfiguration config, IGenericService<User> userService, IGenericService<UserRole> userRoleService, IGenericService<Role> roleService, IGenericService<Picture> pictureService)
+        public AuthController(
+            IConfiguration config, 
+            IGenericService<User> userService, 
+            IGenericService<UserRole> userRoleService, 
+            IGenericService<Role> roleService, 
+            IGenericService<Picture> pictureService
+        )
         {
             configuration = config;
             this.userService = userService;
@@ -37,6 +43,7 @@ namespace AcademyProject.Controllers
             this.pictureService = pictureService;
         }
 
+        // POST: api/<AuthController>/[Action]
         [HttpPost]
         public async Task<ActionResult<JWT>> Facebook(string token)
         {
@@ -93,6 +100,7 @@ namespace AcademyProject.Controllers
             return Ok(tokenResult);
         }
 
+        // POST: api/<AuthController>/[Action]
         [HttpPost]
         public async Task<ActionResult<JWT>> Google(string token)
         {
@@ -145,6 +153,7 @@ namespace AcademyProject.Controllers
             return Ok(tokenResult);
         }
 
+        // POST: api/<AuthController>/[Action]
         [HttpPost]
         public async Task<ActionResult<JWT>> Refresh(JWT jwt)
         {
@@ -165,6 +174,7 @@ namespace AcademyProject.Controllers
             return Unauthorized();
         }
 
+        // POST: api/<AuthController>/[Action]
         [HttpPost]
         public async Task<ActionResult<JWT>> Token([FromBody] Login login)
         {

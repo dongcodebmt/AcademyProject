@@ -8,6 +8,7 @@ namespace AcademyProject.Services
 {
     public interface IGenericService<TEntity> where TEntity : class
     {
+        Task<int> Count();
         Task<int> Count(Expression<Func<TEntity, bool>> where);
         Task Delete(object id);
         Task Delete(TEntity entity);

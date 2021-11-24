@@ -23,5 +23,7 @@ namespace AcademyProject.DTOs
         public DateTime UpdatedAt { get; set; }
         public bool IsDeleted { get; set; }
         public int? PictureId { get; set; }
+        [SwaggerSchema(ReadOnly = true)]
+        public string PicturePath { get; set; }
     }
 }

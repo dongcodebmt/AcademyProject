@@ -19,6 +19,12 @@ namespace AcademyProject.Repositories.Implements
             this.context = context;
             dbSet = context.Set<TEntity>();
         }
+
+        public async Task<int> Count()
+        {
+            return await dbSet.CountAsync<TEntity>();
+        }
+
         public async Task<int> Count(Expression<Func<TEntity, bool>> where)
         {
             return await dbSet.CountAsync<TEntity>(where);

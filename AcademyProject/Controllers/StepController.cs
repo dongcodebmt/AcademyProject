@@ -12,6 +12,7 @@ namespace AcademyProject.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Administrators, Lecturers")]
     public class StepController : ControllerBase
     {
         private readonly IMapper mapper;
@@ -31,14 +32,17 @@ namespace AcademyProject.Controllers
             return id;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<StepDTO>> Get()
-        {
-            var list = await stepService.GetAll();
-            var stepDTOs = list.Select(x => mapper.Map<StepDTO>(x)).ToList();
-            return Ok(stepDTOs);
-        }
+        // GET: api/<StepController>
+        //[HttpGet]
+        //public async Task<ActionResult<StepDTO>> Get()
+        //{
+        //    var list = await stepService.GetAll();
+        //    var stepDTOs = list.Select(x => mapper.Map<StepDTO>(x)).ToList();
+        //    return Ok(stepDTOs);
+        //}
 
+        // GET: api/<StepController>/{id}
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<StepDTO>> Get(int id)
         {
@@ -51,6 +55,7 @@ namespace AcademyProject.Controllers
             return Ok(stepDTO);
         }
 
+        // POST: api/<StepController>
         [HttpPost]
         public async Task<ActionResult<StepDTO>> Post([FromBody] StepDTO stepDTO)
         {
@@ -60,6 +65,7 @@ namespace AcademyProject.Controllers
             return Ok(stepDTO);
         }
 
+        // POST: api/<StepController>/{id}/[Action]
         [Authorize]
         [HttpPost("{id}/[action]")]
         public async Task<ActionResult<bool>> Progress(int id)
@@ -82,6 +88,7 @@ namespace AcademyProject.Controllers
             return Ok(true);
         }
 
+        // PUT: api/<StepController>/{id}
         [HttpPut("{id}")]
         public async Task<ActionResult<StepDTO>> Put(int id, [FromBody] StepDTO stepDTO)
         {
@@ -102,6 +109,7 @@ namespace AcademyProject.Controllers
             return Ok(stepDTO);
         }
 
+        // DELETE: api/<StepController>/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

@@ -23,14 +23,24 @@ CREATE TABLE Users
 	LastName NVARCHAR(255) NOT NULL,
 	Credits INT NOT NULL DEFAULT 0,
 	PictureId INT DEFAULT 1,
+	CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+	UpdatedAt DATETIME NOT NULL DEFAULT GETDATE(),
 	FOREIGN KEY (PictureId) REFERENCES Pictures(Id)
 );
+
+INSERT INTO Users (Email, PasswordHash, FirstName, LastName)
+VALUES ('admin@dongdev.com', '$2a$11$7LhQckiXkSskyGk/2jUn6O0/p7Lw/1WFeFWfkglIyfGl2..gotZnm', 'Trinh', 'Dong');
 
 CREATE TABLE Roles
 (
 	Id INT IDENTITY PRIMARY KEY,
 	Name NVARCHAR(255) NOT NULL
 );
+INSERT INTO Roles VALUES ('Administrators');
+INSERT INTO Roles VALUES ('Moderators');
+INSERT INTO Roles VALUES ('Lecturers');
+INSERT INTO Roles VALUES ('Students');
+INSERT INTO Roles VALUES ('Banned');
 
 CREATE TABLE UserRoles
 (
@@ -40,6 +50,7 @@ CREATE TABLE UserRoles
 	FOREIGN KEY (UserId) REFERENCES Users(Id),
 	FOREIGN KEY (RoleId) REFERENCES Roles(Id)
 );
+INSERT INTO UserRoles VALUES (1, 1);
 
 CREATE TABLE Category
 (
@@ -70,6 +81,7 @@ CREATE TABLE Attendance
 	CourseId INT NOT NULL,
 	UserId INT NOT NULL,
 	Credits INT NOT NULL DEFAULT 0,
+	CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
 	PRIMARY KEY (CourseId, UserId),
 	FOREIGN KEY (CourseId) REFERENCES Courses(Id),
 	FOREIGN KEY (UserId) REFERENCES Users(Id)
@@ -127,6 +139,7 @@ CREATE TABLE Exams (
 	CourseId INT NOT NULL,
 	Title NVARCHAR(255) NOT NULL,
 	ExamDuration INT NOT NULL DEFAULT 300 CHECK(ExamDuration >= 300 AND ExamDuration <= 21600),
+	CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
 	IsDeleted BIT NOT NULL DEFAULT 0, -- 1 = True, 0 = False
 	FOREIGN KEY (CourseId) REFERENCES Courses(Id)
 );
@@ -157,9 +170,11 @@ CREATE TABLE ExamUsers (
     Id INT IDENTITY PRIMARY KEY,
     UserId INT NOT NULL,
 	ExamId INT NOT NULL,
-	NoOfQuestions INT NOT NULL,
+	NoOfQuestion INT NOT NULL,
 	StartedAt DATETIME NOT NULL DEFAULT GETDATE(),
 	CompletedAt DATETIME,
+	NoOfRightOption INT,
+	Mark FLOAT NOT NULL DEFAULT 0 CHECK(Mark >=0 AND Mark <=10),
 	FOREIGN KEY (UserId) REFERENCES Users(Id),
 	FOREIGN KEY (ExamId) REFERENCES Exams(Id)
 );
@@ -175,10 +190,11 @@ CREATE TABLE ExamDetails (
 );
 
 CREATE TABLE Certifications (
-    Id INT IDENTITY PRIMARY KEY,
     UserId INT NOT NULL,
 	CourseId INT NOT NULL,
-	Result INT NOT NULL DEFAULT 0 CHECK(Result >=0 AND Result <=10),
+	Mark FLOAT NOT NULL DEFAULT 0 CHECK(Mark >=0 AND Mark <=10),
+	CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+	PRIMARY KEY(UserId, CourseId),
 	FOREIGN KEY (UserId) REFERENCES Users(Id),
 	FOREIGN KEY (CourseId) REFERENCES Courses(Id)
 );
@@ -221,6 +237,7 @@ CREATE TABLE Questions
 	CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
 	UpdatedAt DATETIME NOT NULL DEFAULT GETDATE(),
 	IsDeleted BIT NOT NULL DEFAULT 0, -- 1 = True, 0 = False
+	PictureId INT DEFAULT 1,
 	FOREIGN KEY (UserId) REFERENCES Users(Id),
 	FOREIGN KEY (CategoryId) REFERENCES Category(Id)
 );

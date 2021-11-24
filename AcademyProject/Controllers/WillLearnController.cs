@@ -2,6 +2,7 @@
 using AcademyProject.Models;
 using AcademyProject.Services;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace AcademyProject.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Administrators, Lecturers")]
     public class WillLearnController : ControllerBase
     {
         private readonly IMapper mapper;
@@ -22,26 +24,29 @@ namespace AcademyProject.Controllers
             this.willLearnService = willLearnService;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<WillLearnDTO>>> Get()
-        {
-            var list = await willLearnService.GetAll();
-            var listWillLearn = list.Select(x => mapper.Map<WillLearnDTO>(x)).ToList();
-            return Ok(listWillLearn);
-        }
+        // GET: api/<WillLearnController>
+        //[HttpGet]
+        //public async Task<ActionResult<List<WillLearnDTO>>> Get()
+        //{
+        //    var list = await willLearnService.GetAll();
+        //    var listWillLearn = list.Select(x => mapper.Map<WillLearnDTO>(x)).ToList();
+        //    return Ok(listWillLearn);
+        //}
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<WillLearnDTO>> Get(int id)
-        {
-            var willLearn = await willLearnService.GetById(id);
-            if (willLearn == null)
-            {
-                return NotFound();
-            }
-            var willLearnDTO = mapper.Map<WillLearnDTO>(willLearn);
-            return Ok(willLearnDTO);
-        }
+        // GET: api/<WillLearnController>/{id}
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult<WillLearnDTO>> Get(int id)
+        //{
+        //    var willLearn = await willLearnService.GetById(id);
+        //    if (willLearn == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    var willLearnDTO = mapper.Map<WillLearnDTO>(willLearn);
+        //    return Ok(willLearnDTO);
+        //}
 
+        // POST: api/<WillLearnController>
         [HttpPost]
         public async Task<ActionResult<WillLearnDTO>> Post([FromBody] WillLearnDTO willLearnDTO)
         {
@@ -51,6 +56,7 @@ namespace AcademyProject.Controllers
             return Ok(willLearnDTO);
         }
 
+        // PUT: api/<WillLearnController>/{id}
         [HttpPut("{id}")]
         public async Task<ActionResult<WillLearnDTO>> Put(int id, [FromBody] WillLearnDTO willLearnDTO)
         {
@@ -69,6 +75,7 @@ namespace AcademyProject.Controllers
             return Ok(willLearnDTO);
         }
 
+        // DELETE: api/<WillLearnController>/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

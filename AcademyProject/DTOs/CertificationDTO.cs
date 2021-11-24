@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 
 namespace AcademyProject.DTOs
 {
-    public class UserRoleDTO
+    public class CertificationDTO
     {
         public int UserId { get; set; }
-        public int RoleId { get; set; }
+        public int CourseId { get; set; }
+        public string CourseName { get; set; }
+        public double Mark { get; set; }
     }
 }

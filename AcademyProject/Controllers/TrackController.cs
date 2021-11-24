@@ -2,6 +2,7 @@
 using AcademyProject.Models;
 using AcademyProject.Services;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace AcademyProject.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Administrators, Lecturers")]
     public class TrackController : ControllerBase
     {
         private readonly IMapper mapper;
@@ -24,26 +26,29 @@ namespace AcademyProject.Controllers
             this.stepService = stepService;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<TrackDTO>>> Get()
-        {
-            var list = await trackService.GetAll();
-            var listTrack = list.Select(x => mapper.Map<TrackDTO>(x)).ToList();
-            return Ok(listTrack);
-        }
+        // GET: api/<TrackController>
+        //[HttpGet]
+        //public async Task<ActionResult<List<TrackDTO>>> Get()
+        //{
+        //    var list = await trackService.GetAll();
+        //    var listTrack = list.Select(x => mapper.Map<TrackDTO>(x)).ToList();
+        //    return Ok(listTrack);
+        //}
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<TrackDTO>> Get(int id)
-        {
-            var track = await trackService.GetById(id);
-            if (track == null)
-            {
-                return NotFound();
-            }
-            var trackDTO = mapper.Map<TrackDTO>(track);
-            return Ok(trackDTO);
-        }
+        // GET: api/<TrackController>/{id}
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult<TrackDTO>> Get(int id)
+        //{
+        //    var track = await trackService.GetById(id);
+        //    if (track == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    var trackDTO = mapper.Map<TrackDTO>(track);
+        //    return Ok(trackDTO);
+        //}
 
+        // GET: api/<TrackController>/{id}/[Action]
         [HttpGet("{id}/[action]")]
         public async Task<ActionResult<List<StepDTO>>> Steps(int id)
         {
@@ -55,6 +60,7 @@ namespace AcademyProject.Controllers
             return Ok(list);
         }
 
+        // POST: api/<TrackController>
         [HttpPost]
         public async Task<ActionResult<TrackDTO>> Post([FromBody] TrackDTO trackDTO)
         {
@@ -64,6 +70,7 @@ namespace AcademyProject.Controllers
             return Ok(trackDTO);
         }
 
+        // PUT: api/<TrackController>/{id}
         [HttpPut("{id}")]
         public async Task<ActionResult<TrackDTO>> Put(int id, [FromBody] TrackDTO trackDTO)
         {
@@ -81,6 +88,7 @@ namespace AcademyProject.Controllers
             return Ok(trackDTO);
         }
 
+        // DELETE: api/<TrackController>/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

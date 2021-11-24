@@ -20,6 +20,7 @@ namespace AcademyProject.Models
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public bool IsDeleted { get; set; }
+        public int? PictureId { get; set; }
 
         public virtual Category Category { get; set; }
         public virtual User User { get; set; }

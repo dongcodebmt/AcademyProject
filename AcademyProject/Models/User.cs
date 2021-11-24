@@ -21,6 +21,7 @@ namespace AcademyProject.Models
             UserRoles = new HashSet<UserRole>();
         }
 
+        public static IEnumerable<object> Claims { get; internal set; }
         public int Id { get; set; }
         public string Email { get; set; }
         public string PasswordHash { get; set; }
@@ -28,6 +29,8 @@ namespace AcademyProject.Models
         public string LastName { get; set; }
         public int Credits { get; set; }
         public int? PictureId { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
 
         public virtual Picture Picture { get; set; }
         public virtual ICollection<Answer> Answers { get; set; }

@@ -9,8 +9,8 @@ namespace AcademyProject.Entities
     public class QuestionOptions
     {
         [Required(ErrorMessage = "The question id is required")]
-        public int questionId { get; set; }
+        public int QuestionId { get; set; }
         [Required(ErrorMessage = "The option id is required")]
-        public int optionId { get; set; }
+        public int OptionId { get; set; }
     }
 }

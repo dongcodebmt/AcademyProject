@@ -2,6 +2,7 @@
 using AcademyProject.Models;
 using AcademyProject.Services;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -10,8 +11,9 @@ using System.Threading.Tasks;
 
 namespace AcademyProject.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
+    [Authorize(Roles = "Administrators")]
     public class CategoryController : ControllerBase
     {
         private readonly IMapper mapper;
@@ -22,7 +24,9 @@ namespace AcademyProject.Controllers
             this.categoryService = categoryService;
         }
 
+        // GET: api/<CategoryController>
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<CategoryDTO>> Get()
         {
             var list = await categoryService.GetList(x => x.IsDeleted == false);
@@ -30,18 +34,20 @@ namespace AcademyProject.Controllers
             return Ok(categories);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<CategoryDTO>> Get(int id)
-        {
-            var category = await categoryService.GetById(id);
-            if (category == null)
-            {
-                return NotFound();
-            }
-            var categoryDTO = mapper.Map<CategoryDTO>(category);
-            return Ok(categoryDTO);
-        }
+        // GET: api/<CategoryController>/{id}
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult<CategoryDTO>> Get(int id)
+        //{
+        //    var category = await categoryService.GetById(id);
+        //    if (category == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    var categoryDTO = mapper.Map<CategoryDTO>(category);
+        //    return Ok(categoryDTO);
+        //}
 
+        // POST: api/<CategoryController>
         [HttpPost]
         public async Task<ActionResult<CategoryDTO>> Post([FromBody] CategoryDTO categoryDTO)
         {
@@ -51,6 +57,7 @@ namespace AcademyProject.Controllers
             return Ok(categoryDTO);
         }
 
+        // PUT: api/<CategoryController>/{id}
         [HttpPut("{id}")]
         public async Task<ActionResult<CategoryDTO>> Put(int id, [FromBody] CategoryDTO categoryDTO)
         {
@@ -67,6 +74,7 @@ namespace AcademyProject.Controllers
             return Ok(categoryDTO);
         }
 
+        // DELETE: api/<CategoryController>/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

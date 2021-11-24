@@ -10,8 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace AcademyProject.Controllers
 {
     [Route("api/[controller]/[action]")]
@@ -29,6 +27,8 @@ namespace AcademyProject.Controllers
             this.userService = userService;
         }
 
+        // POST: api/<PictureController>/[Action]
+        // Upload the picture, save the path to the database and return
         [HttpPost]
         [Authorize]
         public async Task<ActionResult<PictureDTO>> Upload([FromForm] IFormFile file)
@@ -45,6 +45,8 @@ namespace AcademyProject.Controllers
             return Ok(picture);
         }
 
+        // POST: api/<PictureController>/[Action]
+        // Upload profile picture and update user
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> Profile([FromForm] IFormFile file)
@@ -70,6 +72,7 @@ namespace AcademyProject.Controllers
             var users = await userService.GetAll();
             var user = users.FirstOrDefault(u => u.Id == id);
             user.PictureId = picture.Id;
+            user.UpdatedAt = DateTime.Now;
             user = await userService.Update(user);
             return Ok();
         }

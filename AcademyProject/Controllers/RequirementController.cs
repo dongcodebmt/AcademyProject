@@ -2,6 +2,7 @@
 using AcademyProject.Models;
 using AcademyProject.Services;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace AcademyProject.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Administrators, Lecturers")]
     public class RequirementController : ControllerBase
     {
         private readonly IMapper mapper;
@@ -22,26 +24,29 @@ namespace AcademyProject.Controllers
             this.requirementrService = requirementrService;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<RequirementDTO>>> Get()
-        {
-            var list = await requirementrService.GetAll();
-            var listRequirement = list.Select(x => mapper.Map<RequirementDTO>(x)).ToList();
-            return Ok(listRequirement);
-        }
+        // GET: api/<RequirementController>
+        //[HttpGet]
+        //public async Task<ActionResult<List<RequirementDTO>>> Get()
+        //{
+        //    var list = await requirementrService.GetAll();
+        //    var listRequirement = list.Select(x => mapper.Map<RequirementDTO>(x)).ToList();
+        //    return Ok(listRequirement);
+        //}
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<RequirementDTO>> Get(int id)
-        {
-            var requirement = await requirementrService.GetById(id);
-            if (requirement == null)
-            {
-                return NotFound();
-            }
-            var requirementDTO = mapper.Map<AnswerDTO>(requirement);
-            return Ok(requirementDTO);
-        }
+        // GET: api/<RequirementController>/{id}
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult<RequirementDTO>> Get(int id)
+        //{
+        //    var requirement = await requirementrService.GetById(id);
+        //    if (requirement == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    var requirementDTO = mapper.Map<AnswerDTO>(requirement);
+        //    return Ok(requirementDTO);
+        //}
 
+        // POST: api/<RequirementController>
         [HttpPost]
         public async Task<ActionResult<RequirementDTO>> Post([FromBody] RequirementDTO requirementDTO)
         {
@@ -51,6 +56,7 @@ namespace AcademyProject.Controllers
             return Ok(requirementDTO);
         }
 
+        // PUT: api/<RequirementController>/{id}
         [HttpPut("{id}")]
         public async Task<ActionResult<RequirementDTO>> Put(int id, [FromBody] RequirementDTO requirementDTO)
         {
@@ -68,6 +74,7 @@ namespace AcademyProject.Controllers
             return Ok(requirementDTO);
         }
 
+        // DELETE: api/<RequirementController>/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

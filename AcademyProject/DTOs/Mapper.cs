@@ -17,8 +17,7 @@ namespace AcademyProject.DTOs
             CreateMap<User2DTO, User>();
             CreateMap<User, User2DTO>();
 
-            CreateMap<UserRoleDTO, UserRole>();
-            CreateMap<UserRole, UserRoleDTO>();
+            CreateMap<User, UserCommentDTO>();
 
             CreateMap<RoleDTO, Role>();
             CreateMap<Role, RoleDTO>();
@@ -73,6 +72,9 @@ namespace AcademyProject.DTOs
 
             CreateMap<ExamDetailDTO, ExamDetail>();
             CreateMap<ExamDetail, ExamDetailDTO>();
+
+            CreateMap<CertificationDTO, Certification>();
+            CreateMap<Certification, CertificationDTO>();
 
             //Track steps
             CreateMap<Track, TrackStepDTO>();

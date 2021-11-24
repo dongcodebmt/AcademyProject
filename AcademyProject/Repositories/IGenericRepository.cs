@@ -8,6 +8,7 @@ namespace AcademyProject.Repositories
 {
     public interface IGenericRepository<TEntity> where TEntity : class
     {
+        Task<int> Count();
         Task<int> Count(Expression<Func<TEntity, bool>> where);
         Task Delete(object id);
         Task Delete(TEntity entity);

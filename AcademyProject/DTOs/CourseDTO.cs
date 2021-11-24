@@ -23,5 +23,7 @@ namespace AcademyProject.DTOs
         public bool IsDeleted { get; set; }
         [SwaggerSchema(ReadOnly = true)]
         public string PicturePath { get; set; }
+        [SwaggerSchema(ReadOnly = true)]
+        public double Progress { get; set; }
     }
 }

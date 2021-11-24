@@ -17,6 +17,7 @@ namespace AcademyProject.Models
         public int CourseId { get; set; }
         public string Title { get; set; }
         public int ExamDuration { get; set; }
+        public DateTime CreatedAt { get; set; }
         public bool IsDeleted { get; set; }
 
         public virtual Course Course { get; set; }

@@ -23,9 +23,18 @@ namespace AcademyProject.Controllers
         private readonly IGenericService<ExamRightOption> EROService;
         private readonly IGenericService<ExamUser> examUserService;
         private readonly IGenericService<ExamDetail> examDetailService;
+        private readonly IGenericService<Certification> certificationService;
 
-        public ExamController(IMapper mapper, IGenericService<Exam> examService, IGenericService<ExamQuestion> examQuestionService, IGenericService<ExamOption> examOptionService,
-            IGenericService<ExamRightOption> EROService, IGenericService<ExamUser> examUserService, IGenericService<ExamDetail> examDetailService)
+        public ExamController(
+            IMapper mapper, 
+            IGenericService<Exam> examService, 
+            IGenericService<ExamQuestion> examQuestionService, 
+            IGenericService<ExamOption> examOptionService,
+            IGenericService<ExamRightOption> EROService, 
+            IGenericService<ExamUser> examUserService, 
+            IGenericService<ExamDetail> examDetailService,
+            IGenericService<Certification> certificationService
+        )
         {
             this.mapper = mapper;
             this.examService = examService;
@@ -34,6 +43,7 @@ namespace AcademyProject.Controllers
             this.EROService = EROService;
             this.examUserService = examUserService;
             this.examDetailService = examDetailService;
+            this.certificationService = certificationService;
         }
         protected int GetCurrentUserId()
         {
@@ -41,16 +51,19 @@ namespace AcademyProject.Controllers
             int id = Convert.ToInt32(userId);
             return id;
         }
+        
+        // GET: api/<ExamController>
+        //[HttpGet]
+        //public async Task<ActionResult<List<ExamDTO>>> Get()
+        //{
+        //    var list = await examService.GetList(x => x.IsDeleted == false);
+        //    var exams = list.Select(x => mapper.Map<ExamDTO>(x)).ToList();
+        //    return Ok(exams);
+        //}
 
-        [HttpGet]
-        public async Task<ActionResult<List<ExamDTO>>> Get()
-        {
-            var list = await examService.GetList(x => x.IsDeleted == false);
-            var exams = list.Select(x => mapper.Map<ExamDTO>(x)).ToList();
-            return Ok(exams);
-        }
-
+        // GET: api/<ExamController>/{id}
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<ExamDTO>> Get(int id)
         {
             var exam = await examService.GetById(id);
@@ -62,9 +75,11 @@ namespace AcademyProject.Controllers
             return Ok(examDTO);
         }
 
-
+        // GET: api/<ExamController>/{id}/[Action]
+        // Get only list questions
         [HttpGet("{id}/[action]")]
-        public async Task<ActionResult<List<ExamQuestionDTO>>> ExamQuestions(int id)
+        [Authorize(Roles = "Administrators, Lecturers")]
+        public async Task<ActionResult<List<ExamQuestionDTO>>> Questions(int id)
         {
             var list = await examQuestionService.GetList(x => x.ExamId == id && x.IsDeleted == false);
             if (list == null)
@@ -75,27 +90,10 @@ namespace AcademyProject.Controllers
             return Ok(examQuestions);
         }
 
-        [HttpGet("{id}/[action]")]
-        public async Task<ActionResult<List<QuestionFullDTO>>> Questions(int id)
-        {
-            var examQuestions = await examQuestionService.GetList(x => x.ExamId == id && x.IsDeleted == false);
-            if (examQuestions == null)
-            {
-                return NotFound();
-            }
-            List<QuestionFullDTO> list = new List<QuestionFullDTO>();
-            foreach(var item in examQuestions)
-            {
-                QuestionFullDTO q = new QuestionFullDTO();
-                q.Question = mapper.Map<ExamQuestionDTO>(item);
-                var options = await examOptionService.GetList(x => x.QuestionId == item.Id);
-                q.Options = options.Select(x => mapper.Map<ExamOptionDTO>(x)).ToList();
-                list.Add(q);
-            }
-            return Ok(list);
-        }
-
+        // GET: api/<ExamController>/{id}/[Action]
+        // Get question including question, options, right option
         [HttpGet("{questionId}/[action]")]
+        [Authorize(Roles = "Administrators, Lecturers")]
         public async Task<ActionResult<QuestionFullDTO>> QuestionFull(int questionId)
         {
             var examQuestion = await examQuestionService.GetById(questionId);
@@ -112,22 +110,35 @@ namespace AcademyProject.Controllers
             return Ok(questionFullDTO);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<ExamDTO>> Post([FromBody] ExamDTO examDTO)
+        // GET: api/<ExamController>/{id}/[Action]
+        // Check if the course has been completed or not
+        // The course will be completed once the user is certified
+        [Authorize]
+        [HttpGet("{id}/[action]")]
+        public async Task<ActionResult<bool>> IsFinished(int id)
         {
-            var exam = mapper.Map<Exam>(examDTO);
-            exam = await examService.Insert(exam);
-            examDTO = mapper.Map<ExamDTO>(exam);
-            return Ok(examDTO);
+            int userId = GetCurrentUserId();
+            var exam = await examService.GetById(id);
+            if (exam == null)
+            {
+                return NotFound();
+            }
+            var cert = await certificationService.Get(x => x.UserId == userId && x.CourseId == exam.CourseId);
+            if (cert != null)
+            {
+                return Ok(true);
+            }
+            var examUsers = await examUserService.GetList(x => x.ExamId == exam.Id && x.UserId == userId, o => o.OrderByDescending(x => x.Mark), "", 0, 1);
+            var examUser = examUsers.FirstOrDefault();
+            if (examUser != null && examUser.Mark >= 4)
+            {
+                return Ok(true);
+            }
+            return Ok(false);
         }
 
-        [HttpPost("{id}/[action]")]
-        public async Task<ActionResult<QuestionFullDTO>> Question([FromBody] QuestionFullDTO questionFullDTO)
-        {
-            questionFullDTO = await InsertQuestionAsync(questionFullDTO);
-            return Ok(questionFullDTO);
-        }
-
+        // GET: api/<ExamController>/{id}/[Action]
+        // Request to take the test and start test
         [Authorize]
         [HttpGet("{id}/[action]")]
         public async Task<ActionResult<ExamUserDTO>> Test(int id)
@@ -141,7 +152,7 @@ namespace AcademyProject.Controllers
             ExamUser e = new ExamUser();
             e.UserId = userId;
             e.ExamId = exam.Id;
-            e.NoOfQuestions = await examQuestionService.Count(x => x.ExamId == exam.Id && x.IsDeleted == false);
+            e.NoOfQuestion = await examQuestionService.Count(x => x.ExamId == exam.Id && x.IsDeleted == false);
             e = await examUserService.Insert(e);
 
             //var questions = await examQuestionService.GetList(x => x.ExamId == exam.Id && x.IsDeleted == false);
@@ -157,38 +168,136 @@ namespace AcademyProject.Controllers
             return Ok(examUserDTO);
         }
 
+        // GET: api/<ExamController>/{id}/[Action]
+        // Get list questions including question, options
         [Authorize]
-        [HttpPost("{examUserId}/[action]")]
-        public async Task<ActionResult<ExamResult>> Answers(int examUserId, [FromBody] List<QuestionOptions> questionOptions)
+        [HttpGet("{id}/[action]")]
+        public async Task<ActionResult<List<QuestionFullDTO>>> ExamQuestions(int id)
+        {
+            var examQuestions = await examQuestionService.GetList(x => x.ExamId == id && x.IsDeleted == false);
+            if (examQuestions == null)
+            {
+                return NotFound();
+            }
+            List<QuestionFullDTO> list = new List<QuestionFullDTO>();
+            foreach (var item in examQuestions)
+            {
+                QuestionFullDTO q = new QuestionFullDTO();
+                q.Question = mapper.Map<ExamQuestionDTO>(item);
+                var options = await examOptionService.GetList(x => x.QuestionId == item.Id);
+                q.Options = options.Select(x => mapper.Map<ExamOptionDTO>(x)).ToList();
+                list.Add(q);
+            }
+            return Ok(list);
+        }
+
+        // GET: api/<ExamController>/{examUserId}/[Action]
+        [Authorize]
+        [HttpGet("{examUserId}/[action]")]
+        public async Task<ActionResult<ExamUserDTO>> Result(int examUserId)
         {
             var examUser = await examUserService.GetById(examUserId);
-            examUser.CompletedAt = DateTime.Now;
-            await examUserService.Update(examUser);
+            ExamUserDTO examUserDTO = mapper.Map<ExamUserDTO>(examUser);
+            examUserDTO.Details = new List<ExamDetailWithContentDTO>();
+            var exam = await examService.GetById(examUser.ExamId);
+            examUserDTO.Title = exam.Title;
+            // Get exams details
+            // Get list questions of exam
+            var examQuestions = await examQuestionService.GetList(x => x.ExamId == examUser.ExamId);
+            // Get user answers
+            var userOptions = await examDetailService.GetList(x => x.ExamUserId == examUserId);
+            foreach (var item in examQuestions)
+            {
+                ExamDetailWithContentDTO detail = new ExamDetailWithContentDTO();
+                detail.QuestionId = item.Id;
+                detail.QuestionContent = item.Content;
+
+                // Check option is right
+                var userOption = userOptions.Where(x => x.QuestionId == item.Id).FirstOrDefault();
+                if (userOption != null)
+                {
+                    var ERO = await EROService.Get(x => x.QuestionId == item.Id && x.OptionId == userOption.OptionId);
+                    if (ERO != null)
+                    {
+                        detail.IsRight = true;
+                    } 
+                    else
+                    {
+                        detail.IsRight = false;
+                    }
+
+                    // Get option of user answer
+                    detail.OptionId = userOption.OptionId;
+                    var option = await examOptionService.Get(x => x.Id == detail.OptionId);
+                    detail.OptionContent = option.Content;
+
+                    examUserDTO.Details.Add(detail);
+                }
+            }
+
+            return Ok(examUserDTO);
+        }
+
+        // POST: api/<ExamController>
+        [HttpPost]
+        [Authorize(Roles = "Administrators, Lecturers")]
+        public async Task<ActionResult<ExamDTO>> Post([FromBody] ExamDTO examDTO)
+        {
+            var exam = mapper.Map<Exam>(examDTO);
+            exam = await examService.Insert(exam);
+            examDTO = mapper.Map<ExamDTO>(exam);
+            return Ok(examDTO);
+        }
+
+        // POST: api/<ExamController>/{id}/[Action]
+        [HttpPost("{id}/[action]")]
+        [Authorize(Roles = "Administrators, Lecturers")]
+        public async Task<ActionResult<QuestionFullDTO>> Question([FromBody] QuestionFullDTO questionFullDTO)
+        {
+            questionFullDTO = await InsertQuestionAsync(questionFullDTO);
+            return Ok(questionFullDTO);
+        }
+
+        // POST: api/<ExamController>/{examUserId}/[Action]
+        // User submits the test including a list of question ids and option ids
+        [Authorize]
+        [HttpPost("{examUserId}/[action]")]
+        public async Task<ActionResult<ExamUserDTO>> Answers(int examUserId, [FromBody] List<QuestionOptions> questionOptions)
+        {
+            var examUser = await examUserService.GetById(examUserId);
             foreach (var item in questionOptions)
             {
                 ExamDetail e = new ExamDetail();
                 e.ExamUserId = examUserId;
-                e.QuestionId = item.questionId;
-                e.OptionId = item.optionId;
+                e.QuestionId = item.QuestionId;
+                e.OptionId = item.OptionId;
                 await examDetailService.Insert(e);
             }
 
-            ExamResult examResult = new ExamResult();
-            examResult.Id = examUser.Id;
-            examResult.NoOfQuestion = examUser.NoOfQuestions;
-            examResult.NoOfRightOption = 0;
+            int rightOption = 0;
+            //Get exams details
             foreach (var item in questionOptions)
             {
-                var ERO = await EROService.Get(x => x.QuestionId == item.questionId && x.OptionId == item.optionId);
+                var ERO = await EROService.Get(x => x.QuestionId == item.QuestionId && x.OptionId == item.OptionId);
                 if (ERO != null)
                 {
-                    examResult.NoOfRightOption += 1;
+                    rightOption++;
                 }
             }
-            return Ok(examResult);
+
+            examUser.NoOfRightOption = rightOption;
+            examUser.Mark = (double)rightOption / (double)examUser.NoOfQuestion * 10.0;
+            examUser.CompletedAt = DateTime.Now;
+            examUser = await examUserService.Update(examUser);
+
+            ExamUserDTO examUserDTO = mapper.Map<ExamUserDTO>(examUser);
+
+            return Ok(examUserDTO);
         }
 
+        // PUT: api/<ExamController>/{id}
         [HttpPut("{id}")]
+        [Authorize(Roles = "Administrators, Lecturers")]
         public async Task<ActionResult<ExamDTO>> Put(int id, [FromBody] ExamDTO examDTO)
         {
             var exam = await examService.GetById(id);
@@ -202,7 +311,9 @@ namespace AcademyProject.Controllers
             return Ok(examDTO);
         }
 
+        // PUT: api/<ExamController>/{id}/[Action]
         [HttpPut("{id}/[action]")]
+        [Authorize(Roles = "Administrators, Lecturers")]
         public async Task<ActionResult<QuestionFullDTO>> Question(int id, [FromBody] QuestionFullDTO questionFullDTO)
         {
             var examQuestion = await examQuestionService.GetById(id);
@@ -216,7 +327,9 @@ namespace AcademyProject.Controllers
             return Ok(questionFullDTO);
         }
 
+        // DELETE: api/<ExamController>/{id}
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Administrators, Lecturers")]
         public async Task<IActionResult> Delete(int id)
         {
             var exam = await examService.GetById(id);
@@ -229,7 +342,9 @@ namespace AcademyProject.Controllers
             return Ok();
         }
 
+        // DELETE: api/<ExamController>/{questionId}/[Action]
         [HttpDelete("{questionId}/[action]")]
+        [Authorize(Roles = "Administrators, Lecturers")]
         public async Task<IActionResult> Question(int questionId)
         {
             var examQuestion = await examQuestionService.GetById(questionId);
@@ -242,6 +357,7 @@ namespace AcademyProject.Controllers
             return Ok();
         }
 
+        //Insert full question including question, options, right option
         private async Task<QuestionFullDTO> InsertQuestionAsync(QuestionFullDTO questionFullDTO)
         {
             //Insert exam question

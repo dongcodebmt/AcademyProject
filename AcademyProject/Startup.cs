@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using AcademyProject.Services;
 using AcademyProject.Services.Implements;
+using AcademyProject.Controllers;
 
 namespace AcademyProject
 {
@@ -62,6 +63,9 @@ namespace AcademyProject
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddControllers();
+
+            // Add shared component
+            services.AddTransient<SharedComponent>();
 
             // Configure Authentication
             services.AddAuthentication(auth =>

@@ -22,6 +22,11 @@ namespace AcademyProject.Services.Implements
             return await genericRepository.Any(where);
         }
 
+        public async Task<int> Count()
+        {
+            return await genericRepository.Count();
+        }
+
         public async Task<int> Count(Expression<Func<TEntity, bool>> where)
         {
             return await genericRepository.Count(where);
