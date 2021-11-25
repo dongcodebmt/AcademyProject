@@ -12,7 +12,7 @@ namespace AcademyProject.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Administrators, Lecturers")]
+    [Authorize]
     public class StepController : ControllerBase
     {
         private readonly IMapper mapper;
@@ -42,7 +42,6 @@ namespace AcademyProject.Controllers
         //}
 
         // GET: api/<StepController>/{id}
-        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<StepDTO>> Get(int id)
         {
@@ -57,6 +56,7 @@ namespace AcademyProject.Controllers
 
         // POST: api/<StepController>
         [HttpPost]
+        [Authorize(Roles = "Administrators, Lecturers")]
         public async Task<ActionResult<StepDTO>> Post([FromBody] StepDTO stepDTO)
         {
             var step = mapper.Map<Step>(stepDTO);
@@ -66,7 +66,6 @@ namespace AcademyProject.Controllers
         }
 
         // POST: api/<StepController>/{id}/[Action]
-        [Authorize]
         [HttpPost("{id}/[action]")]
         public async Task<ActionResult<bool>> Progress(int id)
         {
@@ -90,6 +89,7 @@ namespace AcademyProject.Controllers
 
         // PUT: api/<StepController>/{id}
         [HttpPut("{id}")]
+        [Authorize(Roles = "Administrators, Lecturers")]
         public async Task<ActionResult<StepDTO>> Put(int id, [FromBody] StepDTO stepDTO)
         {
             var step = await stepService.GetById(id);
@@ -111,6 +111,7 @@ namespace AcademyProject.Controllers
 
         // DELETE: api/<StepController>/{id}
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Administrators, Lecturers")]
         public async Task<IActionResult> Delete(int id)
         {
             var step = await stepService.GetById(id);
