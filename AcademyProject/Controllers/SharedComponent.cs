@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using System.Text.RegularExpressions;
+using System.Net.Mail;
+using System.Net;
+using System.Text;
 
 namespace AcademyProject.Controllers
 {
@@ -72,6 +75,51 @@ namespace AcademyProject.Controllers
         public string StripHTML(string input)
         {
             return Regex.Replace(input, "<.*?>", String.Empty);
+        }
+
+        public bool SendMail(string to, string subject, string body)
+        {
+            try
+            {
+                string host = configuration["SMTPConfig:Host"];
+                int port = Convert.ToInt32(configuration["SMTPConfig:Port"]);
+                string user = configuration["SMTPConfig:Username"];
+                string pass = configuration["SMTPConfig:Password"];
+                string from = configuration["SMTPConfig:Email"];
+                string name = configuration["SMTPConfig:Name"];
+
+                SmtpClient smtpClient = new SmtpClient(host, port);
+
+                smtpClient.Credentials = new NetworkCredential(user, pass);
+                smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
+                smtpClient.EnableSsl = true;
+
+                MailMessage message = new MailMessage();
+                message.From = new MailAddress(from, name);
+                message.To.Add(new MailAddress(to));
+                message.Subject = subject;
+                message.IsBodyHtml = true;
+                message.Body = body;
+
+                smtpClient.Send(message);
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public string CreatePassword(int length)
+        {
+            const string valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+            StringBuilder res = new StringBuilder();
+            Random rnd = new Random();
+            while (0 < length--)
+            {
+                res.Append(valid[rnd.Next(valid.Length)]);
+            }
+            return res.ToString();
         }
     }
 }

@@ -17,6 +17,7 @@ namespace AcademyProject.Controllers
     public class ExamController : ControllerBase
     {
         private readonly IMapper mapper;
+        private readonly SharedComponent component;
         private readonly IGenericService<Exam> examService;
         private readonly IGenericService<ExamQuestion> examQuestionService;
         private readonly IGenericService<ExamOption> examOptionService;
@@ -26,7 +27,8 @@ namespace AcademyProject.Controllers
         private readonly IGenericService<Certification> certificationService;
 
         public ExamController(
-            IMapper mapper, 
+            IMapper mapper,
+            SharedComponent component,
             IGenericService<Exam> examService, 
             IGenericService<ExamQuestion> examQuestionService, 
             IGenericService<ExamOption> examOptionService,
@@ -37,6 +39,7 @@ namespace AcademyProject.Controllers
         )
         {
             this.mapper = mapper;
+            this.component = component;
             this.examService = examService;
             this.examQuestionService = examQuestionService;
             this.examOptionService = examOptionService;
@@ -87,6 +90,10 @@ namespace AcademyProject.Controllers
                 return NotFound();
             }
             var examQuestions = list.Select(x => mapper.Map<ExamQuestionDTO>(x)).ToList();
+            foreach (var item in examQuestions)
+            {
+                item.Content = component.Truncate(component.StripHTML(item.Content), 70);
+            }
             return Ok(examQuestions);
         }
 
@@ -254,6 +261,10 @@ namespace AcademyProject.Controllers
         [Authorize(Roles = "Administrators, Lecturers")]
         public async Task<ActionResult<QuestionFullDTO>> Question([FromBody] QuestionFullDTO questionFullDTO)
         {
+            if (questionFullDTO.Options.Count < 2)
+            {
+                return BadRequest("Vui lòng nhập ít nhất 2 câu hỏi!");
+            }
             questionFullDTO = await InsertQuestionAsync(questionFullDTO);
             return Ok(questionFullDTO);
         }

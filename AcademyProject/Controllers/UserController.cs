@@ -3,13 +3,12 @@ using AcademyProject.Entities;
 using AcademyProject.Models;
 using AcademyProject.Services;
 using AutoMapper;
-using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace AcademyProject.Controllers
 {
@@ -183,6 +182,10 @@ namespace AcademyProject.Controllers
         [Authorize(Roles = "Administrators")]
         public async Task<IActionResult> Roles(int id, [FromBody] List<int> roles)
         {
+            if (roles.Count < 1)
+            {
+                return BadRequest("Vui lòng chọn ít nhất 1 quyền!");
+            }
             var user = await userService.GetById(id);
             if (user == null)
             {
@@ -230,6 +233,28 @@ namespace AcademyProject.Controllers
             User2DTO user2DTO = mapper.Map<User2DTO>(newUser);
 
             return Ok(user2DTO);
+        }
+
+        // POST: api/<UserController>/[Action]
+        [HttpPost("[action]")]
+        [AllowAnonymous]
+        public async Task<ActionResult<bool>> Forgot([FromBody] string email)
+        {
+            var user = await userService.Get(u => u.Email == email);
+            if (user == null)
+            {
+                return Ok(false);
+            }
+            string newPassword = component.CreatePassword(10);
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            user = await userService.Update(user);
+
+            //Send mail
+            string subject = "Đặt lại mật khẩu - Academy";
+            string body = "Mật khẩu mới của bạn là: " + newPassword;
+            bool success = component.SendMail(user.Email, subject, body);
+
+            return Ok(success);
         }
 
         // POST: api/<UserController>/{id}/[Action]
