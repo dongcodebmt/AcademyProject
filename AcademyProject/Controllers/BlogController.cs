@@ -129,7 +129,7 @@ namespace AcademyProject.Controllers
             blog.CategoryId = blogDTO.CategoryId;
             blog.Title = blogDTO.Title;
             blog.Content = blogDTO.Content;
-            blog.UpdatedAt = DateTime.Now;
+            blog.UpdatedAt = DateTime.UtcNow;
             blog.PictureId = blogDTO.PictureId;
             await blogService.Update(blog);
 

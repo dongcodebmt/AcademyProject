@@ -72,7 +72,7 @@ namespace AcademyProject.Controllers
             var users = await userService.GetAll();
             var user = users.FirstOrDefault(u => u.Id == id);
             user.PictureId = picture.Id;
-            user.UpdatedAt = DateTime.Now;
+            user.UpdatedAt = DateTime.UtcNow;
             user = await userService.Update(user);
             return Ok();
         }

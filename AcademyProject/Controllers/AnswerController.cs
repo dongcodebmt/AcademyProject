@@ -79,7 +79,7 @@ namespace AcademyProject.Controllers
             }
 
             answer.Content = answerDTO.Content;
-            answer.UpdatedAt = DateTime.Now;
+            answer.UpdatedAt = DateTime.UtcNow;
             await answerService.Update(answer);
 
             answerDTO.UpdatedAt = answer.UpdatedAt;

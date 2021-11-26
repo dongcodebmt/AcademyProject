@@ -49,11 +49,11 @@ namespace AcademyProject.Models
 
                 entity.Property(e => e.CreatedAt)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(getutcdate())");
 
                 entity.Property(e => e.UpdatedAt)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(getutcdate())");
 
                 entity.HasOne(d => d.Question)
                     .WithMany(p => p.Answers)
@@ -77,7 +77,7 @@ namespace AcademyProject.Models
 
                 entity.Property(e => e.CreatedAt)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(getutcdate())");
 
                 entity.HasOne(d => d.Course)
                     .WithMany(p => p.Attendances)
@@ -98,7 +98,7 @@ namespace AcademyProject.Models
 
                 entity.Property(e => e.CreatedAt)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(getutcdate())");
 
                 entity.Property(e => e.PictureId).HasDefaultValueSql("((1))");
 
@@ -108,7 +108,7 @@ namespace AcademyProject.Models
 
                 entity.Property(e => e.UpdatedAt)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(getutcdate())");
 
                 entity.HasOne(d => d.Category)
                     .WithMany(p => p.Blogs)
@@ -136,11 +136,11 @@ namespace AcademyProject.Models
 
                 entity.Property(e => e.CreatedAt)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(getutcdate())");
 
                 entity.Property(e => e.UpdatedAt)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(getutcdate())");
 
                 entity.HasOne(d => d.Blog)
                     .WithMany(p => p.BlogComments)
@@ -171,7 +171,7 @@ namespace AcademyProject.Models
 
                 entity.Property(e => e.CreatedAt)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(getutcdate())");
 
                 entity.HasOne(d => d.Course)
                     .WithMany(p => p.Certifications)
@@ -190,7 +190,7 @@ namespace AcademyProject.Models
             {
                 entity.Property(e => e.CreatedAt)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(getutcdate())");
 
                 entity.Property(e => e.Description)
                     .IsRequired()
@@ -204,7 +204,7 @@ namespace AcademyProject.Models
 
                 entity.Property(e => e.UpdatedAt)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(getutcdate())");
 
                 entity.HasOne(d => d.Category)
                     .WithMany(p => p.Courses)
@@ -228,7 +228,7 @@ namespace AcademyProject.Models
             {
                 entity.Property(e => e.CreatedAt)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(getutcdate())");
 
                 entity.Property(e => e.ExamDuration).HasDefaultValueSql("((300))");
 
@@ -315,7 +315,7 @@ namespace AcademyProject.Models
 
                 entity.Property(e => e.StartedAt)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(getutcdate())");
 
                 entity.HasOne(d => d.Exam)
                     .WithMany(p => p.ExamUsers)
@@ -344,7 +344,7 @@ namespace AcademyProject.Models
 
                 entity.Property(e => e.StartedAt)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(getutcdate())");
 
                 entity.HasOne(d => d.Step)
                     .WithMany(p => p.Progresses)
@@ -365,7 +365,7 @@ namespace AcademyProject.Models
 
                 entity.Property(e => e.CreatedAt)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(getutcdate())");
 
                 entity.Property(e => e.PictureId).HasDefaultValueSql("((1))");
 
@@ -375,7 +375,7 @@ namespace AcademyProject.Models
 
                 entity.Property(e => e.UpdatedAt)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(getutcdate())");
 
                 entity.HasOne(d => d.Category)
                     .WithMany(p => p.Questions)
@@ -442,7 +442,7 @@ namespace AcademyProject.Models
             {
                 entity.Property(e => e.CreatedAt)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(getutcdate())");
 
                 entity.Property(e => e.Email)
                     .IsRequired()
@@ -462,7 +462,7 @@ namespace AcademyProject.Models
 
                 entity.Property(e => e.UpdatedAt)
                     .HasColumnType("datetime")
-                    .HasDefaultValueSql("(getdate())");
+                    .HasDefaultValueSql("(getutcdate())");
 
                 entity.HasOne(d => d.Picture)
                     .WithMany(p => p.Users)
@@ -473,19 +473,19 @@ namespace AcademyProject.Models
             modelBuilder.Entity<UserRole>(entity =>
             {
                 entity.HasKey(e => new { e.UserId, e.RoleId })
-                    .HasName("PK__UserRole__AF2760ADF8A8E895");
+                    .HasName("PK__UserRole__AF2760ADA0C8E124");
 
                 entity.HasOne(d => d.Role)
                     .WithMany(p => p.UserRoles)
                     .HasForeignKey(d => d.RoleId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__UserRoles__RoleI__300424B4");
+                    .HasConstraintName("FK__UserRoles__RoleI__3F115E1A");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.UserRoles)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__UserRoles__UserI__2F10007B");
+                    .HasConstraintName("FK__UserRoles__UserI__3E1D39E1");
             });
 
             modelBuilder.Entity<WillLearn>(entity =>

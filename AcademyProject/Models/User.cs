@@ -21,7 +21,6 @@ namespace AcademyProject.Models
             UserRoles = new HashSet<UserRole>();
         }
 
-        public static IEnumerable<object> Claims { get; internal set; }
         public int Id { get; set; }
         public string Email { get; set; }
         public string PasswordHash { get; set; }

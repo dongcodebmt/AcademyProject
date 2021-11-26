@@ -269,7 +269,7 @@ namespace AcademyProject.Controllers
 
             var user = await userService.Get(u => u.Id == id);
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
-            user.UpdatedAt = DateTime.Now;
+            user.UpdatedAt = DateTime.UtcNow;
             user = await userService.Update(user);
             return Ok();
         }
@@ -299,7 +299,7 @@ namespace AcademyProject.Controllers
                 return BadRequest(new { message = "Mật khẩu cũ không đúng!" });
             }
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(password.NewPassword);
-            user.UpdatedAt = DateTime.Now;
+            user.UpdatedAt = DateTime.UtcNow;
             user = await userService.Update(user);
             return Ok();
         }
@@ -313,7 +313,7 @@ namespace AcademyProject.Controllers
             user.FirstName = userDTO.FirstName;
             user.LastName = userDTO.LastName;
             user.Email = userDTO.Email;
-            user.UpdatedAt = DateTime.Now;
+            user.UpdatedAt = DateTime.UtcNow;
             if (userDTO.PictureId != null && userDTO.PictureId != 0)
             {
                 user.PictureId = userDTO.PictureId;
@@ -338,7 +338,7 @@ namespace AcademyProject.Controllers
             user.FirstName = userDTO.FirstName;
             user.LastName = userDTO.LastName;
             user.Email = userDTO.Email;
-            user.UpdatedAt = DateTime.Now;
+            user.UpdatedAt = DateTime.UtcNow;
             user = await userService.Update(user);
             userDTO = mapper.Map<User2DTO>(user);
             return Ok(userDTO);

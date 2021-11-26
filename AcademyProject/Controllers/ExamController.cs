@@ -298,7 +298,7 @@ namespace AcademyProject.Controllers
 
             examUser.NoOfRightOption = rightOption;
             examUser.Mark = (double)rightOption / (double)examUser.NoOfQuestion * 10.0;
-            examUser.CompletedAt = DateTime.Now;
+            examUser.CompletedAt = DateTime.UtcNow;
             examUser = await examUserService.Update(examUser);
 
             ExamUserDTO examUserDTO = mapper.Map<ExamUserDTO>(examUser);

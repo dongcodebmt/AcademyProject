@@ -131,7 +131,7 @@ namespace AcademyProject.Controllers
             question.CategoryId = questionDTO.CategoryId;
             question.Title = questionDTO.Title;
             question.Content = questionDTO.Content;
-            question.UpdatedAt = DateTime.Now;
+            question.UpdatedAt = DateTime.UtcNow;
             question.PictureId = questionDTO.PictureId;
             await questionService.Update(question);
 

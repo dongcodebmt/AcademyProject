@@ -100,7 +100,7 @@ namespace AcademyProject.Controllers
             }
 
             blogComment.Content = blogCommentDTO.Content;
-            blogComment.UpdatedAt = DateTime.Now;
+            blogComment.UpdatedAt = DateTime.UtcNow;
             await blogCommentService.Update(blogComment);
 
             blogCommentDTO.UpdatedAt = blogComment.UpdatedAt;
