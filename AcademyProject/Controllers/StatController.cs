@@ -127,7 +127,7 @@ namespace AcademyProject.Controllers
                 return BadRequest("Invalid Date Range");
             }
 
-            var list = await attendanceService.GetList(x => x.CreatedAt >= start && x.CreatedAt <= end);
+            var list = await attendanceService.GetList(x => x.CreatedAt >= start && x.CreatedAt <= end && x.Course.IsDeleted == false);
             var res = list.GroupBy(g => g.CourseId)
                 .Select(s => new { CourseId = s.Key, Count = s.Count() })
                 .OrderByDescending(o => o.Count)
