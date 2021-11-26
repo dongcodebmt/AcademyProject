@@ -244,7 +244,7 @@ namespace AcademyProject.Controllers
                 return BadRequest("Invalid Date Range");
             }
 
-            var list = await certificationUserService.GetList(x => x.CreatedAt >= start && x.CreatedAt <= end);
+            var list = await certificationUserService.GetList(x => x.CreatedAt >= start && x.CreatedAt <= end, o => o.OrderByDescending(x => x.CreatedAt));
             var res = list.GroupBy(g => g.UserId)
                 .Select(s => new { UserId = s.Key, Count = s.Count() })
                 .OrderByDescending(o => o.Count)
@@ -276,7 +276,7 @@ namespace AcademyProject.Controllers
                 return BadRequest("Invalid Date Range");
             }
 
-            var list = await certificationUserService.GetList(x => x.CourseId == courseId && x.CreatedAt >= start && x.CreatedAt <= end);
+            var list = await certificationUserService.GetList(x => x.CourseId == courseId && x.CreatedAt >= start && x.CreatedAt <= end, o => o.OrderByDescending(x => x.CreatedAt));
             var res = list.GroupBy(g => g.UserId, g => g.Mark)
                 .Select(s => new { UserId = s.Key, Mark = s.FirstOrDefault() })
                 .OrderByDescending(o => o.Mark)

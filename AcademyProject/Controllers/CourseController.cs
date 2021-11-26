@@ -269,9 +269,12 @@ namespace AcademyProject.Controllers
         // GET: api/<CourseController>/{id}/[Action]
         [Authorize]
         [HttpGet("{id}/[action]")]
-        public async Task<ActionResult<List<ExamUserDTO>>> ExamUsers(int id)
+        public async Task<ActionResult<List<ExamUserDTO>>> ExamUsers(int id, int userId = 0)
         {
-            int userId = GetCurrentUserId();
+            if (userId == 0)
+            {
+                userId = GetCurrentUserId();
+            }
             var exams = await examService.GetList(x => x.CourseId == id);
             if (exams == null)
             {
